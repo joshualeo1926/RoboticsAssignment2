@@ -2,9 +2,9 @@ classdef Fetch < handle
     properties
         model;
         base = transl(0,0,0);
-        workspace = [-2 2 -2 2 -0.8 4];
+        workspace = [-2 2 -2 2 -2 2];
         name = 'Robot';
-        scale = 0.2;
+        scale = 0.5;
     end
     
     methods
@@ -20,89 +20,30 @@ classdef Fetch < handle
         
         function GetFetchRobot(self)
             pause(0.001);
-        	link1 = Link('d',0.5,'a',0,'alpha',pi/2,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
-            link2 = Link('d',0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-70),deg2rad(87)]); % shoulder lift
-            link3 = Link('d',0.5,'a',0,'alpha',pi/2); % upperarm roll
-            link4 = Link('d',-0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-129),deg2rad(129)]); %elbow flex
-            link5 = Link('d',0.5,'a',0,'alpha',pi/2); %forearm roll
-            link6 = Link('d',0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
-            link7 = Link('d',0.5,'a',0,'alpha',pi/2); %wrist roll
+        	link1 = Link('d',0.107511,'a',0.120238,'alpha',0,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
+            link2 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-87),deg2rad(70)]); % shoulder lift
+            link3 = Link('d',0.179933,'a',0,'alpha',-pi/2); % upperarm roll
+            link4 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-129),deg2rad(129)]); %elbow flex
+            link5 = Link('d',0.15712,'a',0,'alpha',pi/2); %forearm roll
+            link6 = Link('d',0.051119,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
+            link7 = Link('d',0.0423,'a',0,'alpha',pi/2); %wrist roll
             qMatrix = [0 0 0 0 0 0 0];
             
             self.model = SerialLink([link1 link2 link3 link4 link5 link6 link7], 'name', self.name, 'base', self.base);
-            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale);
+            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale, 'noarrow');
+            %self.model.plot(qMatrix, 'workspace', self.workspace,'noarrow');
         end
         
         function Move(self, pos)
+            steps = 50;
             initialPos = self.model.getpos;
-            finialPos = self.model.ikcon(pos);
-            
+            finalPos = self.model.ikcon(pos, initialPos);
+            s = lspb(0,1,steps);
+            qMatrix = zeros(steps, 7);
             for i=1:steps
-                x(1,i) = (1-s(i))*initialPos(1, 4) + s(i)*pos(1, 4);
-                x(2,i) = (1-s(i))*initialPos(2, 4) + s(i)*pos(2, 4);
-                x(3,i) = (1-s(i))*initialPos(3, 4) + s(i)*pos(3, 4);
-                theta(1,i) = 0;
-                theta(2,i) = 5*pi/9;
-                theta(3,i) = 0;             
+                qMatrix(i, :) = (1-s(i))*initialPos(1, 4) + s(i)*finalPos;
             end
-            
-            T = [rpy2r(theta(1,1),theta(2,1),theta(3,1)) x(:,1);zeros(1,3) 1];
-            q0 = zeros(1,7);
-            qMatrix(1,:) = self.model.ikcon(T,q0);
-            
-            for i = 1:steps-1
-                T = self.model.fkine(qMatrix(i,:));
-                deltaX = x(:,i+1) - T(1:3,4);
-                Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1));
-                Ra = T(1:3,1:3);
-                Rdot = (1/deltaT)*(Rd - Ra);
-                S = Rdot*Ra';
-                linear_velocity = (1/deltaT)*deltaX;
-                angular_velocity = [S(3,2);S(1,3);S(2,1)];
-                deltaTheta = tr2rpy(Rd*Ra');
-                xdot = W*[linear_velocity;angular_velocity];
-                J = self.model.jacob0(qMatrix(i,:));
-                m(i) = sqrt(det(J*J'));
-                if m(i) < epsilon
-                    lambda = (1 - m(i)/epsilon)*5E-2;
-                else
-                    lambda = 0;
-                end
-                invJ = inv(J'*J + lambda *eye(7))*J';                               
-                qdot(i,:) = (invJ*xdot)'; 
-                for j = 1:7                                                       
-                    if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)               
-                        qdot(i,j) = 0;
-                    elseif qMatrix(i,j) + deltaT*qdot(i,j) > self.model.qlim(j,2)         
-                        qdot(i,j) = 0;
-                    end
-                end
-                qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);             
-                positionError(:,i) = x(:,i+1) - T(1:3,4);                 
-                angleError(:,i) = deltaTheta;                        
-            end
-
-            figure(1)
-            plot3(x(1,:),x(2,:),x(3,:),'k.','LineWidth',1)
-            self.model.plot(qMatrix,'trail','r-')
-
-            for i = 1:7
-                figure(2)
-                subplot(3,2,i)
-                plot(qMatrix(:,i),'k','LineWidth',1)
-                title(['Joint ', num2str(i)])
-                ylabel('Angle (rad)')
-                refline(0,self.model.qlim(i,1));
-                refline(0,self.model.qlim(i,2));
-
-                figure(3)
-                subplot(3,2,i)
-                plot(qdot(:,i),'k','LineWidth',1)
-                title(['Joint ',num2str(i)]);
-                ylabel('Velocity (rad/s)')
-                refline(0,0)
-            end
-
+            self.model.plot(qMatrix, 'noarrow')
         end
     end
 end
