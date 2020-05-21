@@ -1,0 +1,13 @@
+clear
+clc
+    link1 = Link('revolute','d',0,'a',0,'alpha',0,'qlim',[deg2rad(92),deg2rad(-92)]); %shoulderpan
+    link2 = Link('revolute','d',0,'a',0,'alpha',0,'qlim',[deg2rad(87),deg2rad(-70)]); % shoulder lift
+	link3 = Link('continuous','d',0,'a',0,'alpha',0); % upperarm roll
+	link4 = Link('revolute','d',0,'a',0,'alpha',0,'qlim',[deg2rad(129),deg2rad(-129)]); %elbow
+	link5 = Link('continuous','d',0,'a',0,'alpha',0);
+	link6 = Link('revolute','d',0,'a',0,'alpha',0,'qlim',[deg2rad(125),deg2rad(125)]);
+    
+        
+	robot = SerialLink([link1 link2 link3 link4 link5 link6], 'name',name,'base',base);
+    
+    deg2rad(-92 92)
