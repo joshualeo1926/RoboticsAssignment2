@@ -4,7 +4,7 @@ classdef Fetch < handle
         base = transl(0,0,0);
         workspace = [-2 2 -2 2 -2 2];
         name = 'Robot';
-        scale = 0.2;
+        scale = 0;
     end
     
     methods
@@ -23,11 +23,12 @@ classdef Fetch < handle
             pause(0.001);
         	link1 = Link('d',0.107511,'a',0.120238,'alpha',pi/2,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
             link2 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-87),deg2rad(70)], 'offset', deg2rad(90)); % shoulder lift
-            link3 = Link('d',0.179933,'a',0,'alpha',-pi/2); % upperarm roll
+            link3 = Link('d',0.35,'a',0,'alpha',-pi/2); % upperarm roll
+            
             link4 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-129),deg2rad(129)]); %elbow flex
-            link5 = Link('d',0.15712,'a',0,'alpha',pi/2); %forearm roll
-            link6 = Link('d',0.051119,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
-            link7 = Link('d',0.04237,'a',0,'alpha',0); %wrist roll
+            link5 = Link('d',0.315,'a',0,'alpha',pi/2); %forearm roll
+            link6 = Link('d',0,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
+            link7 = Link('d',0.15,'a',0,'alpha',0); %wrist roll
             qMatrix = [0 0 0 0 0 0 0];
             
             self.model = SerialLink([link1 link2 link3 link4 link5 link6 link7], 'name', self.name, 'base', self.base);
@@ -40,11 +41,12 @@ classdef Fetch < handle
                 currentFile = mfilename( 'fullpath' );
                 [pathstr,~,~] = fileparts( currentFile );
                 plyPath = fullfile(pathstr , '..', 'PLY', ['L',  num2str(linkIndex), '.ply']);
-                [ faceData, vertexData, plyData{linkIndex + 1} ] = plyread(plyPath,'tri');
-                self.model.faces{linkIndex + 1} = faceData;
-                self.model.points{linkIndex + 1} = vertexData;
-            end
-
+                [f, v, d] = plyread(plyPath,'tri');
+                self.model.faces{linkIndex + 1} = f;
+                self.model.points{linkIndex + 1} = v;
+                Data{linkIndex + 1} = d;
+            end 
+            
             % Display robot
             self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
             if isempty(findobj(get(gca,'Children'),'Type','Light'))
@@ -57,9 +59,9 @@ classdef Fetch < handle
                 handles = findobj('Tag', self.model.name);
                 h = get(handles,'UserData');
                 try 
-                    h.link(linkIndex+1).Children.FaceVertexCData = [plyData{linkIndex+1}.vertex.red ...
-                                                                  , plyData{linkIndex+1}.vertex.green ...
-                                                                  , plyData{linkIndex+1}.vertex.blue]/255;
+                    h.link(linkIndex+1).Children.FaceVertexCData = [Data{linkIndex+1}.vertex.red ...
+                                                                  , Data{linkIndex+1}.vertex.green ...
+                                                                  , Data{linkIndex+1}.vertex.blue]/255;
                     h.link(linkIndex+1).Children.FaceColor = 'interp';
                 catch ME_1
                     disp(ME_1);
