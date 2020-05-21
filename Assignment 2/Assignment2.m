@@ -2,7 +2,7 @@ function assignment_2()
 clear all;
 close all;
 clf;
-clc
+clc;
 
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
@@ -30,6 +30,16 @@ name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
 q = [0 0 0 0 0 0 0];
 robot.model.plot(q, 'workspace', workspace)
+robot.Move(transl(0, 0, 2))
+
+hold on;
+workBenchPos(2, 4)
+plot3(workBenchPos(1, 4), workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+plot3(workBenchPos(1, 4)+0.3, workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+plot3(workBenchPos(1, 4)-0.3, workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+hold off;
+
+disp('DONE!')
 end
 
 function obj = CreateObject(file, pos)

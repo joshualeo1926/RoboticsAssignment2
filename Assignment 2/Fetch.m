@@ -30,7 +30,19 @@ classdef Fetch < handle
             qMatrix = [0 0 0 0 0 0 0];
             
             self.model = SerialLink([link1 link2 link3 link4 link5 link6 link7], 'name', self.name, 'base', self.base);
-            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale);
+            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale, 'noarrow');
+        end
+        
+        function Move(self, pos)
+            steps = 50;
+            initialPos = self.model.getpos;
+            finalPos = self.model.ikcon(pos, initialPos);
+            s = lspb(0,1,steps);
+            qMatrix = zeros(steps, 7);
+            for i=1:steps
+                qMatrix(i, :) = (1-s(i))*initialPos(1, 4) + s(i)*finalPos;
+            end
+            self.model.plot(qMatrix, 'noarrow')
         end
     end
 end
