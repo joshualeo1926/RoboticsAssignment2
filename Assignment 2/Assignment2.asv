@@ -1,3 +1,10 @@
+clear
+clc
+
+robot = Fetch();
+robot.model.teach
+   
+
 function assignment_2()
 clear all;
 close all;
@@ -5,18 +12,19 @@ clf;
 clc
 
 set(0, 'DefaultFigureWindowStyle', 'docked')
+currentFile = mfilename( 'fullpath' )
+[pathstr,~,~] = fileparts( currentFile )
+addpath( fullfile( pathstr, 'Sub' ) )
 
-currentFile = mfilename( 'fullpath' );
-[pathstr,~,~] = fileparts( currentFile );
-pathstr = fullfile(pathstr , '..','PLY', 'WorkBench.ply');
+workspace = [-2 2 -2 2 -2 2];
+mdl_puma560
+p560.plot(workspace)
+pathstr = fullfile(pathstr , 'PLY', 'WorkBench.ply')
 
-fetchBase = transl(0,0,0);
-workspace = [-4 4 -4 4 -4 4];
-name = 'Robot';
-robot = Fetch(fetchBase, workspace, name);
+workBenchPos = transl(0, 0, 0);
 
-workBenchPos = transl(1, 1, 1);
 workbench = CreateObject(pathstr, workBenchPos)
+
 end
 
 function obj = CreateObject(file, pos)
