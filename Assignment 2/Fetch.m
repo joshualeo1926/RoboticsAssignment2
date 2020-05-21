@@ -20,9 +20,9 @@ classdef Fetch < handle
         
         function GetFetchRobot(self)
             pause(0.001);
-        	link1 = Link('d',0.5,'a',0,'alpha',pi/2,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
-            link2 = Link('d',0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-70),deg2rad(87)]); % shoulder lift
-            link3 = Link('d',0.5,'a',0,'alpha',pi/2); % upperarm roll
+        	link1 = Link('d',0.107511,'a',0.120238,'alpha',pi/2,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
+            link2 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-87),deg2rad(70)]); % shoulder lift
+            link3 = Link('d',0.179933,'a',0,'alpha',pi/2); % upperarm roll
             link4 = Link('d',-0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-129),deg2rad(129)]); %elbow flex
             link5 = Link('d',0.5,'a',0,'alpha',pi/2); %forearm roll
             link6 = Link('d',0.5,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
