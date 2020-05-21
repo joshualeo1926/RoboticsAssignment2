@@ -12,7 +12,7 @@ clc
 %     base = transl(0,0,0);
 % 	robot = SerialLink([link1 link2 link3 link4 link5 link6 link7],'name','robot', 'base', base);
 %     qMatrix = eye(1,7);
-robot = Fetch();
+    robot = Fetch();
     robot.model.teach
     %robot.plot(qMatrix,'noarrow','workspace',workspace);
    
