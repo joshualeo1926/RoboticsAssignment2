@@ -2,7 +2,7 @@ classdef Fetch < handle
     properties
         model;
         base = transl(0,0,0);
-        workspace = [-2 2 -2 2 -0.8 2];
+        workspace = [-2 2 -2 2 -0.8 4];
         name = 'Robot';
         scale = 0.2;
     end

@@ -8,15 +8,28 @@ set(0, 'DefaultFigureWindowStyle', 'docked')
 
 currentFile = mfilename( 'fullpath' );
 [pathstr,~,~] = fileparts( currentFile );
-pathstr = fullfile(pathstr , '..','PLY', 'WorkBench.ply');
+
+workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
+wrench1Path = fullfile(pathstr , '..', 'PLY', 'Wrench1.ply');
+wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
+wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
+
+workBenchPos = transl(0, 1, 1);
+wrench1Pos = transl(-0.1, 0.75, 0.8);
+wrench2Pos = transl(0, 0.75, 0.8);
+wrench3Pos = transl(0.1, 0.75, 0.8);
+
+workbench = CreateObject(workBenchPath, workBenchPos);
+wrench1 = CreateObject(wrench1Path, wrench1Pos);
+wrench2 = CreateObject(wrench2Path, wrench2Pos);
+wrench3 = CreateObject(wrench3Path, wrench3Pos);
 
 fetchBase = transl(0,0,0);
-workspace = [-4 4 -4 4 -4 4];
+workspace = [-2 2 -2 2 -0.1 3];
 name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
-
-workBenchPos = transl(1, 1, 1);
-workbench = CreateObject(pathstr, workBenchPos)
+q = [0 0 0 0 0 0 0];
+robot.model.plot(q, 'workspace', workspace)
 end
 
 function obj = CreateObject(file, pos)
@@ -32,4 +45,5 @@ function obj = CreateObject(file, pos)
     hold on;
     obj.mesh = trisurf(f, obj.verts(:, 1)+pos(1, 4), obj.verts(:, 2)+pos(2, 4),...
         obj.verts(:, 3)+pos(3, 4), 'FaceVertexCData', obj.vertexColours, 'EdgeLighting', 'flat');
+    hold off;
 end
