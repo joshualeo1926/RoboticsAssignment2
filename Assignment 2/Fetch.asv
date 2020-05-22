@@ -24,12 +24,16 @@ classdef Fetch < handle
         	link1 = Link('d',0.107511,'a',0.120238,'alpha',pi/2,'qlim',[deg2rad(-92),deg2rad(92)]); %shoulderpan
             link2 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-87),deg2rad(70)], 'offset', deg2rad(90)); % shoulder lift
             link3 = Link('d',0.35,'a',0,'alpha',-pi/2); % upperarm roll
+            
             link4 = Link('d',0,'a',0,'alpha',pi/2,'qlim',[deg2rad(-129),deg2rad(129)]); %elbow flex
             link5 = Link('d',0.315,'a',0,'alpha',pi/2); %forearm roll
             link6 = Link('d',0,'a',0,'alpha',-pi/2,'qlim',[deg2rad(-125),deg2rad(125)]); %wrist flex
             link7 = Link('d',0.15,'a',0,'alpha',0); %wrist roll
+            qMatrix = [0 0 0 0 0 0 0];
             
             self.model = SerialLink([link1 link2 link3 link4 link5 link6 link7], 'name', self.name, 'base', self.base);
+            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale, 'noarrow');
+            %self.model.plot(qMatrix, 'workspace', self.workspace,'noarrow');
         end
         
         function PlotAndColourRobot(self)
@@ -41,9 +45,17 @@ classdef Fetch < handle
                 self.model.faces{linkIndex + 1} = f;
                 self.model.points{linkIndex + 1} = v;
                 Data{linkIndex + 1} = d;
+                z = Data{linkIndex + 1};
+                z.vertex
+                size(z.vertex)
+                
+               
             end 
+            
             % Display robot
+            hold on;
             self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
+            hold off;
             if isempty(findobj(get(gca,'Children'),'Type','Light'))
                 camlight
             end  
@@ -54,10 +66,13 @@ classdef Fetch < handle
                 handles = findobj('Tag', self.model.name);
                 h = get(handles,'UserData');
                 try 
-                    h.link(linkIndex+1).Children.FaceVertexCData = [Data{linkIndex+1}.vertex.red ...
-                                                                  , Data{linkIndex+1}.vertex.green ...
-                                                                  , Data{linkIndex+1}.vertex.blue]/255;
-                    h.link(linkIndex+1).Children.FaceColor = 'interp';
+                    fieldsize = size(fieldnames(z.vertex))
+                    if fieldsize(1) > 6
+                        h.link(linkIndex+1).Children.FaceVertexCData = [Data{linkIndex+1}.vertex.red ...
+                                                                      , Data{linkIndex+1}.vertex.green ...
+                                                                      , Data{linkIndex+1}.vertex.blue]/255;
+                        h.link(linkIndex+1).Children.FaceColor = 'interp';
+                    end 
                 catch ME_1
                     disp(ME_1);
                     continue;
@@ -73,8 +88,7 @@ classdef Fetch < handle
             qMatrix = zeros(steps, 7);
             for i=1:steps
                 qMatrix(i, :) = (1-s(i))*initialPos(1, 4) + s(i)*finalPos;
-            end       
-            self.model.plot(qMatrix, 'workspace', self.workspace, 'scale', self.scale, 'noarrow')
+            end           
         end
         
         function Move2(self, pos)
