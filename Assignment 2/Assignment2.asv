@@ -6,32 +6,29 @@ clc;
 
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
-% Set all locations
-workspace = [-1 1 -0.5 1.5 -0.1 2];
+currentFile = mfilename( 'fullpath' );
+[pathstr,~,~] = fileparts( currentFile );
+%get path to eac
+workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
+wrench1Path = fullfile(pathstr , '..', 'PLY', 'Wrench1.ply');
+wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
+wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
+
 workBenchPos = transl(0, 1, 1);
 wrench1Pos = transl(-0.1, 0.75, 0.8);
 wrench2Pos = transl(0, 0.75, 0.8);
 wrench3Pos = transl(0.1, 0.75, 0.8);
 fetchBase = transl(0, 1.2, 0.5);
 
-% Get path to each PLY file
-currentFile = mfilename( 'fullpath' );
-[pathstr,~,~] = fileparts( currentFile );
-workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
-wrench1Path = fullfile(pathstr , '..', 'PLY', 'Wrench1.ply');
-wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
-wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
-
-% Create objects
 workbench = CreateObject(workBenchPath, workBenchPos);
 wrench1 = CreateObject(wrench1Path, wrench1Pos);
 wrench2 = CreateObject(wrench2Path, wrench2Pos);
 wrench3 = CreateObject(wrench3Path, wrench3Pos);
 
-% Create a list of all objects in the envrionment
 environment = [workbench, wrench1, wrench2, wrench3];
 
-% Initialise robot
+
+workspace = [-1 1 -0.5 1.5 -0.1 2];
 name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
 q = [0 0 0 0 0 0 0];
