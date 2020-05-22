@@ -89,7 +89,8 @@ classdef Fetch < handle
                         stopMotion = 1;
                         break
                     end
-                    if rCount == 4
+                    environmentSize = size(environment);
+                    if rCount == environmentSize(2)
                         qMatrix = [qMatrix; qMatrixTemp(i, :)];
                     end
                 end
