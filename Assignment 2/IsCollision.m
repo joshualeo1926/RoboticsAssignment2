@@ -2,7 +2,7 @@
 % This is based upon Lab 5 exercises
 % Given a robot model (robot), and trajectory (i.e. joint state vector) (qMatrix)
 % and triangle obstacles in the environment (faces,vertex,faceNormals)
-function result = IsCollision(robot,qMatrix,faces,vertex,faceNormals,returnOnceFound)
+function [result, intersectP] = IsCollision(robot,qMatrix,faces,vertex,faceNormals,returnOnceFound)
 if nargin < 6
     returnOnceFound = true;
 end

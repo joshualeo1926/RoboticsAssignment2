@@ -62,18 +62,8 @@ while 1
             %recalculate step
             while 1
                 transform = GetLinkPoses(qMatrix, robot.model);
-                for i = 1:size(transform,3)-1
-                    linkTransform = transform(:, :, i);
-                    nextLinkTransform = transform(:, :, i+1);
-                    if intersectP(1) >= linkTransform(1, 4) && intersectP(1) < nextLinkTransform(1, 4)...
-                            && intersectP(2) >= linkTransform(2, 4) && intersectP(2) < nextLinkTransform(2, 4)...
-                            && intersectP(3) >= linkTransform(3, 4) && intersectP(3) < nextLinkTransform(3, 4)
-                       disp(['colliding with link ', i]) 
-                    end 
-                end
-                disp(['did not find link']) 
-                while 1
-                           
+                for i = 0:numel(transform)
+                    linkTransform = transform(i, :);
                 end
             end
         else

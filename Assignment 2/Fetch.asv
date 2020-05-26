@@ -5,6 +5,9 @@ classdef Fetch < handle
         workspace = [-2 2 -2 2 -2 2];
         name = 'Robot';
         scale = 0;
+        sequence;
+        baseItter = 1;
+        armItter = 1;
     end
     
     methods
@@ -65,48 +68,58 @@ classdef Fetch < handle
             end
         end
         
-        function MoveBase(self, pos)
+        function [actionComplete, basePos] = MoveBase(self, pos)
             initialPos = self.base;
             steps = 50;
             s = lspb(0,1,steps);
-            for i=1:steps
-                targetPos = (1-s(i))*initialPos(1, 4) + s(i)*pos;
-                self.model.base = transl(targetPos)
-                %self.model.plot([0 0 0 0 0 0 0])
-            end
+            if self.baseItter <= steps
+                targetPos = (1-s(self.baseItter))*initialPos + s(self.baseItter)*pos;
+                basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                actionComplete = 0;
+                self.baseItter = self.baseItter + 1;
+            else
+                targetPos = (1-s(steps))*initialPos + s(steps)*pos;
+                basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                self.baseItter = 1;
+                actionComplete = 1;
+            end 
         end
         
-        function Move(self, pos, environment)
+        function [actionComplete, qMatrix] = Move(self, pos)
             steps = 50;
             initialPos = self.model.getpos;
             finalPos = self.model.ikcon(pos, initialPos);
             s = lspb(0,1,steps);
-            qMatrix = [];
-            qMatrixTemp = zeros(steps, 7);
-            stopMotion = 0;
-            for i=1:steps
-                qMatrixTemp(i, :) = (1-s(i))*initialPos(1, 4) + s(i)*finalPos;
-                rCount = 0;
-                for j = 1:numel(environment)
-                    if stopMotion == 1
-                        break
-                    end
-                    result = IsCollision(self.model, qMatrixTemp(i, :),...
-                        environment(j).f, environment(j).verts, environment(j).fn);
-                    if(result == 0)
-                        rCount = rCount + 1;
-                    elseif(result == 1)
-                        disp(['colliding with ', environment(j).name{1}])
-                        stopMotion = 1;
-                        break
-                    end
-                    environmentSize = size(environment);
-                    if rCount == environmentSize(2)
-                        qMatrix = [qMatrix; qMatrixTemp(i, :)];
-                    end
-                end
+            if self.armItter <= steps
+                qMatrix = (1-s(self.armItter))*initialPos + s(self.armItter)*finalPos;
+                actionComplete = 0;
+                self.armItter = self.armItter + 1;
+            else
+                qMatrix = (1-s(steps))*initialPos + s(steps)*finalPos;
+                actionComplete = 1;
+                self.armItter = 1;        
             end 
-            self.model.plot(qMatrix, 'workspace', self.workspace, 'noarrow', 'scale', self.scale )
+
+        end
+        
+        function [isCollision, intersectP] = IsArmCollision(self, pose, environment)
+            rCount = 0;
+            stopMotion = 0;
+            for j = 1:numel(environment)
+                [result, intersectP] = IsCollision(self.model, pose, environment(j).f, ...
+                    environment(j).verts, environment(j).fn);
+                if(result == 0)
+                    rCount = rCount + 1;
+                elseif(result == 1)
+                    disp(['colliding with ', environment(j).name{1}])
+                    isCollision = 1;
+                    break
+                end
+                environmentSize = size(environment);
+                if rCount == environmentSize(2) && stopMotion == 0
+                    isCollision = 0;
+                end
+            end  
         end
         
         function Move2(self, pos)
