@@ -6,8 +6,13 @@ fetchBase = transl(0,0,0.5);
 workspace = [-0.2 1 -0.5 0.5 -0.1 1.5];
 name = 'Robot';
    
-robot = Fetch(fetchBase, workspace, name);
-%robot.model.teach
-%qMatrix = robot.Move(transl(0, 0, 2));
-%robot.model.plot(qMatrix);
-robot.Move2(transl(0.45, 0.55, 0.5))
+% robot = Fetch(fetchBase, workspace, name);
+% %robot.model.teach
+% %qMatrix = robot.Move(transl(0, 0, 2));
+% %robot.model.plot(qMatrix);
+% robot.Move2(transl(0.45, 0.55, 0.5))
+gui = GUI();
+%%
+%gui.EStopButtonPushed()
+%gui.Lamp.Color = [0,1,0];
+state = gui.func()

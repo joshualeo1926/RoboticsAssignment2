@@ -36,12 +36,13 @@ name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
 q = deg2rad([92 -80 0 -100 0 85 0]);
 robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0)
-
+gui = GUI();
 % Mail loop
 step = 1;
 while 1
     %read GUI
     %check ESTOP
+    
     %check light curtain
     
     if step == 1
