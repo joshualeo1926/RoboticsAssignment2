@@ -73,6 +73,12 @@ while 1
                     end 
                 end
                 disp(['did not find link']) 
+                intersectP
+                for i = 1:size(transform,3)
+                    linkTransform = transform(:, :, i);
+                    disp(['link ', num2str(i), ' - ', num2str(linkTransform(1, 4)), ' : ', ...
+                        num2str(linkTransform(2, 4)), ' : ', num2str(linkTransform(3, 4))])
+                end 
                 while 1
                            
                 end
