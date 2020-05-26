@@ -65,6 +65,17 @@ classdef Fetch < handle
             end
         end
         
+        function MoveBase(self, pos)
+            initialPos = self.base;
+            steps = 50;
+            s = lspb(0,1,steps);
+            for i=1:steps
+                targetPos = (1-s(i))*initialPos(1, 4) + s(i)*pos;
+                self.model.base = transl(targetPos)
+                %self.model.plot([0 0 0 0 0 0 0])
+            end
+        end
+        
         function Move(self, pos, environment)
             steps = 50;
             initialPos = self.model.getpos;
@@ -83,19 +94,18 @@ classdef Fetch < handle
                     result = IsCollision(self.model, qMatrixTemp(i, :),...
                         environment(j).f, environment(j).verts, environment(j).fn);
                     if(result == 0)
-                        rCount = rCount + 1
+                        rCount = rCount + 1;
                     elseif(result == 1)
                         disp(['colliding with ', environment(j).name{1}])
                         stopMotion = 1;
                         break
                     end
-                    if rCount == 4
+                    environmentSize = size(environment);
+                    if rCount == environmentSize(2)
                         qMatrix = [qMatrix; qMatrixTemp(i, :)];
                     end
                 end
             end 
-            qMatrixTemp
-            qMatrix
             self.model.plot(qMatrix, 'workspace', self.workspace, 'noarrow', 'scale', self.scale )
         end
         

@@ -65,8 +65,20 @@ classdef Fetch < handle
             end
         end
         
+        function MoveBase(self, pos)
+            initialPos = self.base;
+            steps = 50;
+            s = lspb(0,1,steps);
+            for i=1:steps
+                targetPos = (1-s(i))*initialPos + s(i)*pos;
+                self.model.base = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                self.model.plot(self.model.getpos)
+            end
+        end
+        
         function Move(self, pos, environment)
             steps = 50;
+            rad2deg(self.model.getpos)
             initialPos = self.model.getpos;
             finalPos = self.model.ikcon(pos, initialPos);
             s = lspb(0,1,steps);
@@ -74,7 +86,7 @@ classdef Fetch < handle
             qMatrixTemp = zeros(steps, 7);
             stopMotion = 0;
             for i=1:steps
-                qMatrixTemp(i, :) = (1-s(i))*initialPos(1, 4) + s(i)*finalPos;
+                qMatrixTemp(i, :) = (1-s(i))*initialPos + s(i)*finalPos;
                 rCount = 0;
                 for j = 1:numel(environment)
                     if stopMotion == 1
@@ -90,7 +102,7 @@ classdef Fetch < handle
                         break
                     end
                     environmentSize = size(environment);
-                    if rCount == environmentSize(2)
+                    if rCount == environmentSize(2) && stopMotion == 0
                         qMatrix = [qMatrix; qMatrixTemp(i, :)];
                     end
                 end

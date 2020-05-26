@@ -8,6 +8,6 @@ name = 'Robot';
    
 robot = Fetch(fetchBase, workspace, name);
 %robot.model.teach
-qMatrix = robot.Move(transl(0, 0, 2));
+%qMatrix = robot.Move(transl(0, 0, 2));
 %robot.model.plot(qMatrix);
 robot.Move2(transl(0.45, 0.55, 0.5))

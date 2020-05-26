@@ -34,9 +34,12 @@ environment = [workbench, wrench1, wrench2, wrench3];
 % Initialise robot
 name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
-q = [0 0 0 0 0 0 0];
+q = deg2rad([92 -80 0 -100 0 85 0]);
 robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0)
-robot.Move(transl(0, 0, 2), environment);
+%robot.MoveBase(transl(0.5, 1.2, 0.5))
+robot.Move(transl(0.8, 1.5, 0.6), environment);
+robot.model.teach
+%robot.Move(transl(0, 0, 2), environment);
 
 hold on;
 plot3(workBenchPos(1, 4), workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
