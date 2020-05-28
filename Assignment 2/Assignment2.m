@@ -56,6 +56,8 @@ while 1
         end
     end
     %check light curtain
+    
+    % move to workbench
     if step == 1
         destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.95, fetchBase(3, 4))*trotz(pi/2);
         [actionComplete, basePos] = robot.MoveBase(destination);
@@ -65,6 +67,9 @@ while 1
         robot.model.base = basePos;
         robot.model.plot(robot.model.getpos)
         step = step + actionComplete;
+    
+    % unfold arm
+        % create move function that takes in a joint state
     elseif step == 2
         [actionComplete, qMatrix] = robot.Move(transl(0, 0.5, 0.75)*trotx(pi));
         [collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
@@ -78,11 +83,15 @@ while 1
             robot.model.plot(qMatrix)
             step = step + actionComplete;
         end
+        
+    % pick up first wrench
     elseif step == 3
         [actionComplete, qMatrix] = robot.Move(wrench1Pos*trotx(pi));
         %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
         robot.model.plot(qMatrix)
         step = step + actionComplete;
+        
+    % done
     elseif step == 4
         break
     end
