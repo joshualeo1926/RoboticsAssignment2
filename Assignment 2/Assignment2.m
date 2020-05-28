@@ -40,15 +40,31 @@ gui = GUI();
 % Mail loop
 step = 1;
 while 1
+    pause(0.00001)
+    power = gui.GetPowerValue();
+    if (power == "On")
+        %Choose Start or TeachMode is activated
+        pause(0.00001)
+        start = gui.GetStartValue();
+        teachModeValue = gui.GetTeachModeValue();
+        if (teachModeValue == 1)
+            %TeachMode(gui);
+            while(teachModeValue == 1)
+                teachModeValue = TeachMode(gui)
+                disp('hi');
+            end
+        end
+        while(start==1)
     %read GUI
+    
     %check ESTOP
     paused = 1;
     pause(0.00001)
-    EStopValue = gui.getEStopValue();
+    EStopValue = gui.GetEStopValue();
     if(EStopValue == 1)
         while(paused == 1)
             pause(0.00001)
-            EStopValue = gui.getEStopValue();
+            EStopValue = gui.GetEStopValue();
             if(EStopValue == 0)
                 paused = 0;
             end
@@ -101,7 +117,8 @@ while 1
     elseif step == 3
         break
     end
-    
+    end
+    end
 end
 
 hold on;
@@ -111,6 +128,7 @@ plot3(workBenchPos(1, 4)-0.3, workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.'
 hold off;
 
 disp('DONE!')
+    
 end
 
 function obj = CreateObject(file, pos)
@@ -162,4 +180,25 @@ for i = 1:length(links)
 
     transforms(:,:,i + 1) = current_transform;
 end
+end
+
+function teachModeValue = TeachMode(gui)
+    clc
+    clf
+    teachModeValue = 1;
+    workspace = [-1 1 -1 1 -0.1 1.5];
+    name = 'Robot';
+    fetchBase = transl(0, 0, 0.52);
+    robot = Fetch(fetchBase, workspace, name);
+    q = deg2rad([92 -80 0 -100 0 85 0]);
+    robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0)
+    
+    while(teachModeValue == 1)
+        pause(0.00001)
+        teachModeValue = gui.GetTeachModeValue();
+        initialPos = robot.model.getpos;
+        finalPos = robot.model.ikcon(pos, initialPos);
+        
+        
+    end
 end
