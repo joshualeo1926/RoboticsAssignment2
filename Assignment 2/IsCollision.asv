@@ -2,7 +2,7 @@
 % This is based upon Lab 5 exercises
 % Given a robot model (robot), and trajectory (i.e. joint state vector) (qMatrix)
 % and triangle obstacles in the environment (faces,vertex,faceNormals)
-function [result, intersectP, i] = IsCollision(robot,qMatrix,faces,vertex,faceNormals,returnOnceFound)
+function [result, intersectP] = IsCollision(robot,qMatrix,faces,vertex,faceNormals,returnOnceFound)
 if nargin < 6
     returnOnceFound = true;
 end
@@ -17,22 +17,24 @@ for qIndex = 1:size(qMatrix,1)
     % Go through each link and also each triangle face
     for i = 1 : size(tr,3)-1    
         for faceIndex = 1:size(faces,1) 
-            if tr(1,4,i) ~= tr(1,4,i+1) && tr(2,4,i) ~= tr(2,4,i+1) && tr(3,4,i) ~= tr(3,4,i+1) && 0
+            disp(tr(1,4,i) ~= tr(1,4,i+1))
+            if tr(1,4,i) ~= tr(1,4,i+1) && tr(2,4,i) ~= tr(2,4,i+1) && tr(3,4,i) ~= tr(3,4,i+1)
                 for j = 1:8
-                    ctr = tr(:,:,i);
-                    ftr = tr(:,:,i+1);
-                    p = [rand(1);  rand(1); rand(1)];
-                    p1 = [ctr(1, 4); ctr(2, 4); ctr(3, 4)];
-                    p2 = [ftr(1, 4); ftr(2, 4); ftr(3, 4)];
-                    r = cross((p - p1), (p2 - p1));
-                    s = cross(r, (p2-p1));
+                    disp('-----------')
+                    ctr = tr(:,:,i)
+                    ftr = tr(:,:,i+1)
+                    p = [rand(1);  rand(1); rand(1)]
+                    p1 = [ctr(1, 4); ctr(2, 4); ctr(3, 4)]
+                    p2 = [ftr(1, 4); ftr(2, 4); ftr(3, 4)]
+                    r = cross((p - p1), (p2 - p1))
+                    s = cross(r, (p2-p1);)
                     r = r/norm(r);
                     s = s/norm(s);
 
                     x = [-1 -1 0 1 1 1 0 -1];
                     y = [0 1 1 1 0 -1 -1 -1];
 
-                    radius = 0.07;
+                    radius = 0.002;
 
                     s = radius*x(j)*s;
                     r = radius*y(j)*r;
@@ -40,6 +42,7 @@ for qIndex = 1:size(qMatrix,1)
                     nctr = tr(:,:,i) + transl(s(1), s(2), s(3)) + transl(r(1), r(2), r(3));
                     nftr = tr(:,:,i+1) + transl(s(1), s(2), s(3)) + transl(r(1), r(2), r(3));
 
+                    disp('-----------')
                     vertOnPlane = vertex(faces(faceIndex,1)',:);
                     [intersectP,check] = LinePlaneIntersection(faceNormals(faceIndex,:),vertOnPlane,nctr(1:3,4)',nftr(1:3,4)'); 
                     if check == 1 && IsIntersectionPointInsideTriangle(intersectP,vertex(faces(faceIndex,:)',:))
@@ -47,6 +50,7 @@ for qIndex = 1:size(qMatrix,1)
                         %display('Intersection');
                         result = true;
                         if returnOnceFound
+                            disp(num2str(i))
                             return
                         end
                     end
@@ -59,6 +63,7 @@ for qIndex = 1:size(qMatrix,1)
                     %display('Intersection');
                     result = true;
                     if returnOnceFound
+                        disp(num2str(i))
                         return
                     end
                 end
