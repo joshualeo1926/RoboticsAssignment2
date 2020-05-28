@@ -7,12 +7,12 @@ clc;
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
 % Set all locations
-workspace = [-1 1 -0.5 1.5 -0.1 2];
-workBenchPos = transl(0, 1, 1);
-wrench1Pos = transl(-0.1, 0.75, 0.8);
-wrench2Pos = transl(0, 0.75, 0.8);
-wrench3Pos = transl(0.1, 0.75, 0.8);
-fetchBase = transl(0, 1.2, 0.5);
+workspace = [-1 1 -2.5 1.5 -0.1 2];
+workBenchPos = transl(0, 1, 0.75);
+wrench1Pos = transl(-0.1, 0.75, workBenchPos(3, 4) - 0.2);
+wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2);
+wrench3Pos = transl(0.1, 0.75, workBenchPos(3, 4) - 0.2);
+fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
@@ -37,6 +37,7 @@ robot = Fetch(fetchBase, workspace, name);
 q = deg2rad([92 -80 0 -100 0 85 0]);
 robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0)
 gui = GUI();
+
 % Mail loop
 step = 1;
 while 1
@@ -55,9 +56,9 @@ while 1
         end
     end
     %check light curtain
-    
     if step == 1
-        [actionComplete, basePos] = robot.MoveBase(transl(0.5, 1.2, 0.5));
+        destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.95, fetchBase(3, 4))*trotz(pi/2);
+        [actionComplete, basePos] = robot.MoveBase(destination);
         %check base pos for collision befor plotting 
             %if collision -> wait for no collision
             %else -> plot
@@ -65,40 +66,24 @@ while 1
         robot.model.plot(robot.model.getpos)
         step = step + actionComplete;
     elseif step == 2
-        [actionComplete, qMatrix] = robot.Move(transl(0.8, 0.75, 0.6));
-        [collision, intersectP] = robot.IsArmCollision(qMatrix, environment);
+        [actionComplete, qMatrix] = robot.Move(transl(0, 0.5, 0.75)*trotx(pi));
+        [collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
         %check arm for collisions befor plotting
             %if collisions -> move around
             %else -> plot
-        if collision == 1
-            %recalculate step
-            while 1
-                transform = GetLinkPoses(qMatrix, robot.model);
-                for i = 1:size(transform,3)-1
-                    linkTransform = transform(:, :, i);
-                    nextLinkTransform = transform(:, :, i+1);
-                    if intersectP(1) >= linkTransform(1, 4) && intersectP(1) < nextLinkTransform(1, 4)...
-                            && intersectP(2) >= linkTransform(2, 4) && intersectP(2) < nextLinkTransform(2, 4)...
-                            && intersectP(3) >= linkTransform(3, 4) && intersectP(3) < nextLinkTransform(3, 4)
-                       disp(['colliding with link ', i]) 
-                    end 
-                end
-                disp(['did not find link']) 
-                intersectP
-                for i = 1:size(transform,3)
-                    linkTransform = transform(:, :, i);
-                    disp(['link ', num2str(i), ' - ', num2str(linkTransform(1, 4)), ' : ', ...
-                        num2str(linkTransform(2, 4)), ' : ', num2str(linkTransform(3, 4))])
-                end 
-                while 1
-                           
-                end
-            end
+        if collision == 1 && 0
+            i
+            intersectP
         else
             robot.model.plot(qMatrix)
             step = step + actionComplete;
         end
     elseif step == 3
+        [actionComplete, qMatrix] = robot.Move(wrench1Pos*trotx(pi));
+        %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
+        robot.model.plot(qMatrix)
+        step = step + actionComplete;
+    elseif step == 4
         break
     end
     
@@ -141,25 +126,4 @@ function obj = CreateObject(file, pos)
         faceNormals(faceIndex,:) = unit(cross(v2-v1,v3-v1));
         obj.fn = faceNormals;
     end
-end
-
-function [ transforms ] = GetLinkPoses( q, robot)
-%q - robot joint angles
-%robot -  seriallink robot model
-%transforms - list of transforms
-
-links = robot.links;
-transforms = zeros(4, 4, length(links) + 1);
-transforms(:,:,1) = robot.base;
-
-for i = 1:length(links)
-    L = links(1,i);
-    
-    current_transform = transforms(:,:, i);
-    
-    current_transform = current_transform * trotz(q(1,i) + L.offset) * ...
-    transl(0,0, L.d) * transl(L.a,0,0) * trotx(L.alpha);
-
-    transforms(:,:,i + 1) = current_transform;
-end
 end

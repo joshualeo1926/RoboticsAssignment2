@@ -75,11 +75,13 @@ classdef Fetch < handle
             if self.baseItter <= steps
                 targetPos = (1-s(self.baseItter))*initialPos + s(self.baseItter)*pos;
                 basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                basePos(1:2, 1:2) = initialPos(1:2, 1:2);
                 actionComplete = 0;
                 self.baseItter = self.baseItter + 1;
             else
                 targetPos = (1-s(steps))*initialPos + s(steps)*pos;
                 basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                basePos(1:2, 1:2) = initialPos(1:2, 1:2);
                 self.baseItter = 1;
                 actionComplete = 1;
             end 
@@ -102,11 +104,11 @@ classdef Fetch < handle
 
         end
         
-        function [isCollision, intersectP] = IsArmCollision(self, pose, environment)
+        function [isCollision, intersectP, i] = IsArmCollision(self, pose, environment)
             rCount = 0;
             stopMotion = 0;
             for j = 1:numel(environment)
-                [result, intersectP] = IsCollision(self.model, pose, environment(j).f, ...
+                [result, intersectP, i] = IsCollision(self.model, pose, environment(j).f, ...
                     environment(j).verts, environment(j).fn);
                 if(result == 0)
                     rCount = rCount + 1;
