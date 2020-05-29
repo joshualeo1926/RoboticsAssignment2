@@ -68,18 +68,16 @@ classdef Fetch < handle
             end
         end
         
-        function [actionComplete, basePos] = MoveBase(self, pos)
-            initialPos = self.base;
+        function [actionComplete, basePos] = MoveBase(self, initialPos, targetPos)
             steps = 50;
             s = lspb(0,1,steps);
             if self.baseItter <= steps
-                targetPos = (1-s(self.baseItter))*initialPos + s(self.baseItter)*pos;
+                targetPos = (1-s(self.baseItter))*initialPos + s(self.baseItter)*targetPos;
                 basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
                 basePos(1:2, 1:2) = initialPos(1:2, 1:2);
                 actionComplete = 0;
                 self.baseItter = self.baseItter + 1;
             else
-                targetPos = (1-s(steps))*initialPos + s(steps)*pos;
                 basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
                 basePos(1:2, 1:2) = initialPos(1:2, 1:2);
                 self.baseItter = 1;
@@ -87,17 +85,32 @@ classdef Fetch < handle
             end 
         end
         
-        function [actionComplete, qMatrix] = Move(self, pos)
+        function [actionComplete, qMatrix] = Move(self, initialPos, targetPos)
             steps = 50;
-            initialPos = self.model.getpos;
-            finalPos = self.model.ikcon(pos, initialPos);
+            finalPos = self.model.ikcon(targetPos, initialPos);
             s = lspb(0,1,steps);
             if self.armItter <= steps
                 qMatrix = (1-s(self.armItter))*initialPos + s(self.armItter)*finalPos;
                 actionComplete = 0;
                 self.armItter = self.armItter + 1;
             else
-                qMatrix = (1-s(steps))*initialPos + s(steps)*finalPos;
+                qMatrix = finalPos;
+                actionComplete = 1;
+                self.armItter = 1;        
+            end 
+
+        end
+        
+        function [actionComplete, qMatrix] = MoveJointState(self, initialPos, jointState)
+            steps = 50;
+            finalPos = jointState;
+            s = lspb(0,1,steps);
+            if self.armItter <= steps
+                qMatrix = (1-s(self.armItter))*initialPos + s(self.armItter)*finalPos;
+                actionComplete = 0;
+                self.armItter = self.armItter + 1;
+            else
+                qMatrix = finalPos;
                 actionComplete = 1;
                 self.armItter = 1;        
             end 
