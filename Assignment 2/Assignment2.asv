@@ -1,25 +1,15 @@
 %{
     PLY FILES:
-        PART                                |CREATOR
-        ====================================|==========
-        FETCHROBOT(arm links and base)      |
-        WORKBENCH                           |Joshua Leo
-        WRENCH (1,2 & 3)                    |Joshua Leo
-        GANTRY                              |Joshua Leo
-        GANTRY MOTOR                        |Joshua Leo
-    
-    CODE:
-        FUNCTOION/FILE                      |CREATOR
-        ====================================|==========
-        IsCollion                           |41013 robotics/Dr.Gavin Paul 
-        IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
-        LinePlaneIntersection               |41013 robotics/Dr.Gavin Paul
-        IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
-        GetLinkPoses                        |41013 robotics/Dr.Gavin Paul 
-        Move/RMRC                           |41013 robotics/Dr.Gavin Paul
+        PART                                CREATOR
+        FETCHROBOT(arm links and base) -  
+        WORKBENCH -                         JOSHUA LEO
+        WRENCH (1,2 & 3) -                  JOSHUA LEO
+        GANTRY -                            JOSHUA LEO
+        GANTRY MOTOR -                      JOSHUA LEO
+
 %}
 
-clear all;
+c3ear all;
 close all;
 clf;
 clc;
@@ -33,8 +23,7 @@ wrench1Pos = transl(-0.1, 0.75, workBenchPos(3, 4) - 0.2);
 wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2);
 wrench3Pos = transl(0.1, 0.75, workBenchPos(3, 4) - 0.2);
 gantryPos = transl(0, -0.25, 0.1);
-%gantryMotorPos = transl(-1.4, -0.25, 0.57);
-gantryMotorPos = transl(-1.4, -0.25, 1.47);
+gantryMotorPos = transl(-1.4, -0.25, 0.57);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 
 % Get path to each PLY file
@@ -45,7 +34,7 @@ wrench1Path = fullfile(pathstr , '..', 'PLY', 'Wrench1.ply');
 wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
 wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
 gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
-gantryMotorPath = fullfile(pathstr , '..', 'PLY', 'gantrymotor2.ply');
+gantryMotorPath = fullfile(pathstr , '..', 'PLY', 'gantrymotor.ply');
 
 % Create objects
 workbench = CreateObject(workBenchPath, workBenchPos);
@@ -67,8 +56,6 @@ gui = GUI();
 %%
 % Mail loop
 step = 1;
-csd = 0;
-qMatrixA = [0 0 0 0 0 0 0];
 while 1
     %read GUI
     pause(0.00001)
@@ -144,31 +131,26 @@ while 1
                     robot.model.base = basePos;
                     robot.model.plot(robot.model.getpos)
                     step = step + actionComplete;     
+                else
+                    disp('Base collsion')
                 end
             
             % unfold arm
             initalArmPose = robot.model.getpos;
             elseif step == 2
                 [actionComplete, qMatrix] = robot.MoveJointState(initalArmPose, deg2rad([92 -50 0 -115 0 15 0]));
-                robot.armItter = robot.armItter + 1;
                 robot.model.plot(qMatrix)
                 step = step + actionComplete;
             initalArmPose = robot.model.getpos;
             elseif step == 3
                 [actionComplete, qMatrix] = robot.MoveJointState(initalArmPose, deg2rad([92 30 0 -100 0 80 0]));
-                robot.armItter = robot.armItter + 1;
                 robot.model.plot(qMatrix)
                 step = step + actionComplete;   
 
             % move to above table
-            % NEEED TO FIX MOVE2/RMRC to not be as janky
             initalArmPose = robot.model.getpos;
             elseif step == 4
-                if csd == 0
-                    [actionComplete, qMatrix] = robot.Move2(transl(0, 0.5, 0.75)*trotx(pi));
-                    qMatrixA = qMatrix;
-                    csd = 1;
-                end
+                [actionComplete, qMatrix] = robot.Move(initalArmPose, transl(0, 0.5, 0.75)*trotx(pi));
                 %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
                 %check arm for collisions befor plotting
                 %if collisions -> move around
@@ -180,12 +162,7 @@ while 1
                 %    robot.model.plot(qMatrix)
                 %    step = step + actionComplete;
                 %end
-                robot.model.plot(qMatrixA(robot.armItter, :));
-                robot.armItter = robot.armItter + 1;
-                actionComplete = 0;
-                if robot.armItter == 50
-                    actionComplete = 1;
-                end
+                robot.model.plot(qMatrix)
                 step = step + actionComplete;
                 
             % move closer
@@ -193,20 +170,18 @@ while 1
             elseif step == 5
                 destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.65, fetchBase(3, 4))*trotz(pi/2);
                 [actionComplete, basePos] = robot.MoveBase(initialBasePose, destination);
-                collision = robot.CheckBaseCollision(gantryMotor);
-                if collision == 0                   
-                    robot.baseItter = robot.baseItter + 1;
-                    robot.model.base = basePos;
-                    robot.model.plot(robot.model.getpos)
-                    step = step + actionComplete;     
-                end
+                %check base pos for collision befor plotting 
+                %if collision -> wait for no collision
+                %else -> plot
+                robot.model.base = basePos;
+                robot.model.plot(robot.model.getpos)
+                step = step + actionComplete;      
                 
             % pick up first wrench
             initalArmPose = robot.model.getpos;
             elseif step == 6
                 [actionComplete, qMatrix] = robot.Move(initalArmPose, wrench1Pos*trotx(pi));
                 %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
-                robot.armItter = robot.armItter + 1;
                 robot.model.plot(qMatrix)
                 step = step + actionComplete;
         
