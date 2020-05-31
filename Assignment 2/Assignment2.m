@@ -74,6 +74,12 @@ while 1
                 joint7 = gui.GetJoint7Value();
                 qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
                 robot.model.plot(qMatrix);
+                pause(0.00001)
+                teachMode2 = gui.GetTeachMode2Value();
+                if(teachMode2 == 1)
+                    pause(0.00001)
+                    
+                end
             end
         end
         % If Start is pressed start process
