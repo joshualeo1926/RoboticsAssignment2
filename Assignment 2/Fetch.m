@@ -68,19 +68,15 @@ classdef Fetch < handle
             end
         end
         
-        function [actionComplete, basePos] = MoveBase(self, initialPos, targetPos)
+        function basePos = MoveBase(self, finalPos)
+            initialPos = self.model.base;
             steps = 50;
+            basePos = zeros(4, 4, steps);
             s = lspb(0,1,steps);
-            if self.baseItter <= steps
-                targetPos = (1-s(self.baseItter))*initialPos + s(self.baseItter)*targetPos;
-                basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
-                basePos(1:2, 1:2) = initialPos(1:2, 1:2);
-                actionComplete = 0;
-            else
-                basePos = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
-                basePos(1:2, 1:2) = initialPos(1:2, 1:2);
-                self.baseItter = 0;
-                actionComplete = 1;
+            for i = 1:steps
+                targetPos = (1-s(i))*initialPos + s(i)*finalPos;
+                basePos(:, :, i) = transl(targetPos(1, 4), targetPos(2, 4), targetPos(3, 4));
+                basePos(1:2, 1:2, i) = initialPos(1:2, 1:2);
             end 
         end
         
@@ -134,7 +130,7 @@ classdef Fetch < handle
             end  
         end
         
-        function [actionComplete, qMatrix] = Move2(self, pos)
+        function qMatrix = ArmRMRCPos(self, targetPos)
             initialPos = self.model.fkine(self.model.getpos);
             t = 0.5;   
             deltaT = 0.01;   
@@ -142,7 +138,7 @@ classdef Fetch < handle
             epsilon = 0.1;    
             W = diag([1 1 1 1 1 1]);    
             initRPY = tr2rpy(initialPos);
-            targetRPY = tr2rpy(pos);
+            targetRPY = tr2rpy(targetPos);
             m = zeros(steps,1);  
             qMatrix = zeros(steps,7);    
             qdot = zeros(steps,7);
@@ -151,19 +147,14 @@ classdef Fetch < handle
 
             s = lspb(0,1,steps);   
             for i=1:steps
-                x(1,i) = (1-s(i))*initialPos(1, 4) + s(i)*pos(1, 4);
-                x(2,i) = (1-s(i))*initialPos(2, 4) + s(i)*pos(2, 4);
-                x(3,i) = (1-s(i))*initialPos(3, 4) + s(i)*pos(3, 4);
+                x(1,i) = (1-s(i))*initialPos(1, 4) + s(i)*targetPos(1, 4);
+                x(2,i) = (1-s(i))*initialPos(2, 4) + s(i)*targetPos(2, 4);
+                x(3,i) = (1-s(i))*initialPos(3, 4) + s(i)*targetPos(3, 4);
                 theta(1,i) = (1-s(i))*initRPY(1) + s(i)*targetRPY(1);
                 theta(2,i) = (1-s(i))*initRPY(2) + s(i)*targetRPY(2);
                 theta(3,i) = (1-s(i))*initRPY(3) + s(i)*targetRPY(3);
             end
 
-            %plot3(x(1,:),x(2,:),x(3,:),'k.','LineWidth',1)
-            
-            %T = [rpy2r(theta(1,1),theta(2,1),theta(3,1)) x(:,1);zeros(1,3) 1];
-            %q0 = zeros(1,7);               
-            %qMatrix(1,:) = self.model.ikcon(T,q0); 
             qMatrix(1,:) = self.model.getpos;
 
             for i = 1:steps-1
@@ -196,7 +187,66 @@ classdef Fetch < handle
                 end
                 qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);  
             end
-            actionComplete = 1;
+        end
+
+        function qMatrix = ArmRMRCJoints(self, targetJoints)
+            initialPos = self.model.fkine(self.model.getpos);
+            targetPos = self.model.fkine(targetJoints);
+            t = 0.5;   
+            deltaT = 0.01;   
+            steps = t/deltaT;  
+            epsilon = 0.1;    
+            W = diag([1 1 1 1 1 1]);    
+            initRPY = tr2rpy(initialPos);
+            targetRPY = tr2rpy(targetPos);
+            m = zeros(steps,1);  
+            qMatrix = zeros(steps,7);    
+            qdot = zeros(steps,7);
+            theta = zeros(3,steps); 
+            x = zeros(3,steps);
+
+            s = lspb(0,1,steps);   
+            for i=1:steps
+                x(1,i) = (1-s(i))*initialPos(1, 4) + s(i)*targetPos(1, 4);
+                x(2,i) = (1-s(i))*initialPos(2, 4) + s(i)*targetPos(2, 4);
+                x(3,i) = (1-s(i))*initialPos(3, 4) + s(i)*targetPos(3, 4);
+                theta(1,i) = (1-s(i))*initRPY(1) + s(i)*targetRPY(1);
+                theta(2,i) = (1-s(i))*initRPY(2) + s(i)*targetRPY(2);
+                theta(3,i) = (1-s(i))*initRPY(3) + s(i)*targetRPY(3);
+            end
+
+            qMatrix(1,:) = self.model.getpos;
+
+            for i = 1:steps-1
+                T = self.model.fkine(qMatrix(i,:)); 
+                deltaX = x(:,i+1) - T(1:3,4);
+                Rd = rpy2r(theta(1,i+1),theta(2,i+1),theta(3,i+1)); 
+                Ra = T(1:3,1:3); 
+                Rdot = (1/deltaT)*(Rd - Ra); 
+                S = Rdot*Ra';
+                linear_velocity = (1/deltaT)*deltaX;
+                angular_velocity = [S(3,2);S(1,3);S(2,1)]; 
+        
+                xdot = W*[linear_velocity;angular_velocity];                          	
+                J = self.model.jacob0(qMatrix(i,:));
+                m(i) = sqrt(det(J*J'));
+                if m(i) < epsilon 
+                    lambda = (1 - m(i)/epsilon)*5E-2;
+                else
+                    lambda = 0;
+                end
+                
+                invJ = inv(J'*J + lambda *eye(7))*J';                        
+                qdot(i,:) = (invJ*xdot)';                                             
+                for j = 1:7                                        
+                    if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)   
+                        qdot(i,j) = 0;
+                    elseif qMatrix(i,j) + deltaT*qdot(i,j) > self.model.qlim(j,2)
+                        qdot(i,j) = 0;
+                    end
+                end
+                qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);  
+            end
         end
         
         function result = CheckBaseCollision(self, environment) 

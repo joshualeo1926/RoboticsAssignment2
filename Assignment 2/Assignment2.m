@@ -67,8 +67,8 @@ gui = GUI();
 %%
 % Mail loop
 step = 1;
-csd = 0;
-qMatrixA = [0 0 0 0 0 0 0];
+get_matrix = 1;
+itteration = 1;
 while 1
     %read GUI
     pause(0.00001)
@@ -133,42 +133,71 @@ while 1
             end
             gantryMotor.mesh.Vertices(:, 1) = gantryMotor.verts(:, 1) + 1.4 + obstructionValue;
             
+            % ========== FETCH CONTROLL ============
+            
             % move to workbench
-            initialBasePose = robot.model.base;
             if step == 1
-                destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.95, fetchBase(3, 4))*trotz(pi/2);
-                [actionComplete, basePos] = robot.MoveBase(initialBasePose, destination);
-                collision = robot.CheckBaseCollision(gantryMotor);
-                if collision == 0                   
-                    robot.baseItter = robot.baseItter + 1;
-                    robot.model.base = basePos;
-                    robot.model.plot(robot.model.getpos)
-                    step = step + actionComplete;     
+                if get_matrix == 1
+                    destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.95, fetchBase(3, 4))*trotz(pi/2);
+                    basePos = robot.MoveBase(destination);
+                    get_matrix = 0;
+                end
+                if itteration <= size(basePos, 3)
+                    collision = robot.CheckBaseCollision(gantryMotor);
+                    if collision == 0   
+                        robot.model.base = basePos(:, :, itteration);
+                        itteration = itteration + 1;
+                        robot.model.plot(robot.model.getpos)
+                    end
+                elseif itteration > size(basePos, 3)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
                 end
             
             % unfold arm
-            initalArmPose = robot.model.getpos;
             elseif step == 2
-                [actionComplete, qMatrix] = robot.MoveJointState(initalArmPose, deg2rad([92 -50 0 -115 0 15 0]));
-                robot.armItter = robot.armItter + 1;
-                robot.model.plot(qMatrix)
-                step = step + actionComplete;
-            initalArmPose = robot.model.getpos;
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCJoints(deg2rad([92 -50 0 -115 0 15 0]));
+                    get_matrix = 0;
+                end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end
+                
             elseif step == 3
-                [actionComplete, qMatrix] = robot.MoveJointState(initalArmPose, deg2rad([92 30 0 -100 0 80 0]));
-                robot.armItter = robot.armItter + 1;
-                robot.model.plot(qMatrix)
-                step = step + actionComplete;   
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCJoints(deg2rad([92 30 0 -100 0 80 0]));
+                    get_matrix = 0;
+                end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end
 
             % move to above table
-            % NEEED TO FIX MOVE2/RMRC to not be as janky
-            initalArmPose = robot.model.getpos;
             elseif step == 4
-                if csd == 0
-                    [actionComplete, qMatrix] = robot.Move2(transl(0, 0.5, 0.75)*trotx(pi));
-                    qMatrixA = qMatrix;
-                    csd = 1;
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCPos(transl(0, 0.5, 0.75)*trotx(pi));
+                    get_matrix = 0;
                 end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end                
                 %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
                 %check arm for collisions befor plotting
                 %if collisions -> move around
@@ -180,38 +209,45 @@ while 1
                 %    robot.model.plot(qMatrix)
                 %    step = step + actionComplete;
                 %end
-                robot.model.plot(qMatrixA(robot.armItter, :));
-                robot.armItter = robot.armItter + 1;
-                actionComplete = 0;
-                if robot.armItter == 50
-                    actionComplete = 1;
-                end
-                step = step + actionComplete;
                 
             % move closer
             initialBasePose = robot.model.base;
             elseif step == 5
-                destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.65, fetchBase(3, 4))*trotz(pi/2);
-                [actionComplete, basePos] = robot.MoveBase(initialBasePose, destination);
-                collision = robot.CheckBaseCollision(gantryMotor);
-                if collision == 0                   
-                    robot.baseItter = robot.baseItter + 1;
-                    robot.model.base = basePos;
-                    robot.model.plot(robot.model.getpos)
-                    step = step + actionComplete;     
+                if get_matrix == 1
+                    destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.65, fetchBase(3, 4))*trotz(pi/2);
+                    basePos = robot.MoveBase(destination);
+                    get_matrix = 0;
+                end
+                if itteration <= size(basePos, 3)
+                    collision = robot.CheckBaseCollision(gantryMotor);
+                    if collision == 0   
+                        robot.model.base = basePos(:, :, itteration);
+                        itteration = itteration + 1;
+                        robot.model.plot(robot.model.getpos)
+                    end
+                elseif itteration > size(basePos, 3)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
                 end
                 
             % pick up first wrench
-            initalArmPose = robot.model.getpos;
             elseif step == 6
-                [actionComplete, qMatrix] = robot.Move(initalArmPose, wrench1Pos*trotx(pi));
-                %[collision, intersectP, i] = robot.IsArmCollision(qMatrix, environment);
-                robot.armItter = robot.armItter + 1;
-                robot.model.plot(qMatrix)
-                step = step + actionComplete;
-        
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCPos(wrench1Pos*trotx(pi));
+                    get_matrix = 0;
+                end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end  
             % done
             elseif step == 7
+                disp('DONE 1 !')
                 break
             end
         end
