@@ -2,7 +2,7 @@
     PLY FILES:
         PART                                |CREATOR
         ====================================|==========
-        FETCHROBOT(arm links and base)      |
+        FETCHROBOT(arm links and base)      |ROS/GAZIBO
         WORKBENCH                           |Joshua Leo
         WRENCH (1,2 & 3)                    |Joshua Leo
         GANTRY                              |Joshua Leo
@@ -253,8 +253,54 @@ while 1
                     get_matrix = 1;
                     step = step + 1;
                 end  
-            % done
+            
+            % pre placment position wrench 1
             elseif step == 7
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3,...
+                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.08)*trotx(-pi/2));
+                    get_matrix = 0;
+                    robot.AttachObject(wrench1, wrench1Pos)
+                end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    robot.UpdateObjectPos
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end  
+                
+            % place wrench 1
+            elseif step == 8
+                if get_matrix == 1
+                    qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3,...
+                        workBenchPos(2, 4), workBenchPos(3, 4) + 0.05)*trotx(-pi/2));
+                    get_matrix = 0;
+                end
+                if itteration <= size(qMatrix, 1)
+                    robot.model.plot(qMatrix(itteration, :))
+                    robot.UpdateObjectPos
+                    itteration = itteration + 1;
+                elseif itteration > size(qMatrix, 1)
+                    itteration = 1;
+                    get_matrix = 1;
+                    step = step + 1;
+                end 
+                
+            % pick up wrench 2
+            % pre placment position wrench 2
+            % place wrench 2
+            
+            % pick up wrench 3
+            % pre placment position wrench 3
+            % place wrench 3
+            
+            % go to saftey sign?
+            
+            % done
+            elseif step == 9
                 disp('DONE 1 !')
                 break
             end
@@ -282,6 +328,7 @@ function obj = CreateObject(file, pos)
     obj.f = f;
     midPoint = sum(v)/obj.vertexCount;
     obj.verts = v - repmat(midPoint, obj.vertexCount, 1);
+    obj.oriVerts = v - repmat(midPoint, obj.vertexCount, 1);
     obj.vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
     obj.verts(:, 1) = obj.verts(:, 1) + pos(1, 4);
     obj.verts(:, 2) = obj.verts(:, 2) + pos(2, 4);
