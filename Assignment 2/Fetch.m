@@ -81,36 +81,29 @@ classdef Fetch < handle
             end 
         end
         
-        function [actionComplete, qMatrix] = Move(self, initialPos, targetPos)
+        function qMatrix = Move(self, targetPos)
             steps = 50;
+            initialPos = self.model.getpos;
             finalPos = self.model.ikcon(targetPos, initialPos);
             s = lspb(0,1,steps);
-            if self.armItter <= steps
-                qMatrix = (1-s(self.armItter))*initialPos + s(self.armItter)*finalPos;
-                actionComplete = 0;
-            else
-                qMatrix = finalPos;
-                actionComplete = 1;
-                self.armItter = 0;        
-            end 
-
+            qMatrix = nan(steps, 7);
+            for i = 1:steps
+                qMatrix(i, :) = (1-s(i))*initialPos + s(i)*finalPos;
+            end
         end
         
-        function [actionComplete, qMatrix] = MoveJointState(self, initialPos, jointState)
+        function qMatrix = MoveJointState(self, jointState)
             steps = 50;
+            initialPos = self.model.getpos;
             finalPos = jointState;
             s = lspb(0,1,steps);
-            if self.armItter <= steps
-                qMatrix = (1-s(self.armItter))*initialPos + s(self.armItter)*finalPos;
-                actionComplete = 0;
-            else
-                qMatrix = finalPos;
-                actionComplete = 1;
-                self.armItter = 0;        
-            end 
-
+            qMatrix = nan(steps, 7);
+            for i=1:steps
+                qMatrix(i, :) = (1-s(i))*initialPos + s(i)*finalPos;
+            end
         end
         
+        % NOT USED
         function [isCollision, intersectP, i] = IsArmCollision(self, pose, environment)
             rCount = 0;
             stopMotion = 0;
@@ -134,7 +127,7 @@ classdef Fetch < handle
         function qMatrix = ArmRMRCPos(self, targetPos)
             initialPos = self.model.fkine(self.model.getpos);
             t = 0.5;   
-            deltaT = 0.01;   
+            deltaT = 0.05;   
             steps = t/deltaT;  
             epsilon = 0.1;    
             W = diag([1 1 1 1 1 1]);    
@@ -279,11 +272,11 @@ classdef Fetch < handle
             end
         end
         
-        function AttachObject(self, object, pos)
+        function AttachObject(self, object)
             self.attachedObjects = [object];
         end
         
-        function DetachObject(self, object)
+        function DetachObject(self)
             self.attachedObjects = [];
         end
         

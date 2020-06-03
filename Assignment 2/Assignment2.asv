@@ -262,9 +262,9 @@ while 1
             % pre placment position wrench 1
             elseif step == 8
                 if get_matrix == 1
-                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
+                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.32,...
                     %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                    qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
+                    qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.32,...
                         workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                     get_matrix = 0;
                  end
@@ -281,8 +281,8 @@ while 1
             % place wrench 1
             elseif step == 9
                 if get_matrix == 1
-                    qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
-                        workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                    qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.32,...
+                        workBenchPos(2, 4) + 0.05, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                     get_matrix = 0;
                 end
                 if itteration <= size(qMatrix, 1)
@@ -298,9 +298,9 @@ while 1
             % go back
             elseif step == 10
                 if get_matrix == 1
-                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
+                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.32,...
                     %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                    qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
+                    qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.32,...
                         workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                     get_matrix = 0;
                     robot.DetachObject()
@@ -356,9 +356,9 @@ while 1
             elseif step == 13
                 if get_matrix == 1
                     %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
+                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0565)*trotx(-pi/2));
                     qMatrix = robot.Move(transl(workBenchPos(1, 4),...
-                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
+                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0565)*trotx(-pi/2));
                     get_matrix = 0;
                 end
                 if itteration <= size(qMatrix, 1)
@@ -375,7 +375,7 @@ while 1
             elseif step == 14
                 if get_matrix == 1
                     qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                        workBenchPos(2, 4) + 0.035, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
+                        workBenchPos(2, 4) + 0.025, workBenchPos(3, 4) + 0.0565)*trotx(-pi/2));
                     get_matrix = 0;
                 end
                 if itteration <= size(qMatrix, 1)
@@ -392,9 +392,9 @@ while 1
             elseif step == 15
                 if get_matrix == 1
                     %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
+                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0575)*trotx(-pi/2));
                     qMatrix = robot.Move(transl(workBenchPos(1, 4),...
-                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
+                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0565)*trotx(-pi/2));
                     get_matrix = 0;
                     robot.DetachObject()
                 end
@@ -448,10 +448,10 @@ while 1
             % pre placment position wrench 3
             elseif step == 18
                 if get_matrix == 1
-                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.315,...
+                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.05)*trotx(-pi/2));
                     qMatrix = robot.Move(transl(workBenchPos(1, 4) + 0.305,...
-                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.04)*trotx(-pi/2));
                     get_matrix = 0;
                 end
                 if itteration <= size(qMatrix, 1)
@@ -468,7 +468,7 @@ while 1
             elseif step == 19
                 if get_matrix == 1
                     qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                        workBenchPos(2, 4) + 0.04, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                        workBenchPos(2, 4) + 0.03, workBenchPos(3, 4) + 0.04)*trotx(-pi/2));
                     get_matrix = 0;
                 end
                 if itteration <= size(qMatrix, 1)
@@ -484,10 +484,10 @@ while 1
             % go back
             elseif step == 20
                 if get_matrix == 1
-                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                    %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.315,...
+                    %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.06)*trotx(-pi/2));
                     qMatrix = robot.Move(transl(workBenchPos(1, 4) + 0.305,...
-                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                        workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.04)*trotx(-pi/2));
                     get_matrix = 0;
                     robot.DetachObject()
                 end
@@ -505,12 +505,21 @@ while 1
             
             % done
             elseif step == 21
-                disp('DONE!')
+                disp('DONE 1 !')
                 break
             end
         end
     end
 end
+
+hold on;
+plot3(workBenchPos(1, 4), workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+plot3(workBenchPos(1, 4)+0.3, workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+plot3(workBenchPos(1, 4)-0.3, workBenchPos(2, 4), workBenchPos(3, 4) + 0.1, 'r.')
+hold off;
+
+disp('DONE!')
+
 
 function obj = CreateObject(file, pos)
     splitLine = split(file, '\');
