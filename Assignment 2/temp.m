@@ -1,28 +1,70 @@
-function temp
+
 clear all;
 clc;
 close all;
 
-gui = GUI();
-
 %%
-currentFile = mfilename( 'fullpath' );
-[pathstr,~,~] = fileparts( currentFile );
-workBenchPos = transl(0, 1, 0.75);
-workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
-workbench = CreateObject(workBenchPath, workBenchPos);
-
-    teachModeValue = 1;
-    workspace = [-2 2 -2 2 -0.1 1.5];
+    workspace = [-2 2 -2 2 -0.2 1.5];
     name = 'Robot';
     fetchBase = transl(0, 0, 0.5);
     robot = Fetch(fetchBase, workspace, name);
     initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
     robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
-    hold on;
-    plot3(0.7105,    0.5376,    0.5215, 'ro')
-    hold off;
+    %gui = GUI();
+%%    
+    
+    
+    
+    currentFile = mfilename( 'fullpath' );
+    [pathstr,~,~] = fileparts( currentFile );
+    
+    gantryMotorPos = transl(-1.5,1,0);
+    cubePos = transl(1.5, 1.5, 0);
+    gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
+    cubePath = fullfile(pathstr , '..', 'PLY', 'cube.ply');
+    gantry = CreateObject(gantryPath,gantryMotorPos);
+    cube = CreateObject(cubePath,cubePos);
+    CreateLightCurtain();
+%     numel(cube)
+%     numel(gantry)
+        for j = 1:numel(cube)
+            [intersectP,check] = LinePlaneIntersection(cube.fn(size,:),vertOnPlane,tr(1:3,4,i)',tr(1:3,4,i+1)'); 
+            if(result == 0)
+                    rCount = rCount + 1;
+            elseif(result == 1)
+                disp("collision");
+            end
+        end
+	
+    
+%%
+% currentFile = mfilename( 'fullpath' );
+% [pathstr,~,~] = fileparts( currentFile );
+% workBenchPos = transl(0, 1, 0.75);
+% workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
+% workbench = CreateObject(workBenchPath, workBenchPos);
+% 
+%     teachModeValue = 1;
+%     workspace = [-2 2 -2 2 -0.1 1.5];
+%     name = 'Robot';
+%     fetchBase = transl(0, 0, 0.5);
+%     robot = Fetch(fetchBase, workspace, name);
+%     initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
+%     robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
+%     hold on;
+%     plot3(0.7105,    0.5376,    0.5215, 'ro')
+%     hold off;
 
+
+function CreateLightCurtain()
+    for i=0:0.5:2
+        x = [1,2];
+        y = [2,1];
+        z = [i,i];
+        hold on
+        plot3(x,y,z,'--rs','LineWidth',0.1);
+        hold off
+    end
 end
 
 function obj = CreateObject(file, pos)

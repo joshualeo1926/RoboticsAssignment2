@@ -36,6 +36,7 @@ gantryPos = transl(0, -0.25, 0.1);
 %gantryMotorPos = transl(-1.4, -0.25, 0.57);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
+cubePos = transl(1.8, -1.5, 0);
 
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
@@ -46,6 +47,8 @@ wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
 wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
 gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
 gantryMotorPath = fullfile(pathstr , '..', 'PLY', 'gantrymotor2.ply');
+cubePath = fullfile(pathstr , '..', 'PLY', 'cube.ply');
+    
 
 % Create objects
 workbench = CreateObject(workBenchPath, workBenchPos);
@@ -54,6 +57,8 @@ wrench2 = CreateObject(wrench2Path, wrench2Pos);
 wrench3 = CreateObject(wrench3Path, wrench3Pos);
 gantry = CreateObject(gantryPath, gantryPos);
 gantryMotor = CreateObject(gantryMotorPath, gantryMotorPos);
+cube = CreateObject(cubePath,cubePos);
+CreateLightCurtain();
 
 % Create a list of all objects in the envrionment
 environment = [workbench, wrench1, wrench2, wrench3];
@@ -141,6 +146,10 @@ while 1
             end
             gantryMotor.mesh.Vertices(:, 1) = gantryMotor.verts(:, 1) + 1.4 + obstructionValue;
             
+            % Move the cube for Light Curtain
+            pause(0.00001)
+            cubeValue = 2.8 * gui.GetLightBlockSlider()/100;
+            cube.mesh.Vertices(:, 2) = cube.verts(:, 2) -  cubeValue;
             % ========== FETCH CONTROLL ============
             
             % move to workbench
@@ -345,5 +354,16 @@ function obj = CreateObject(file, pos)
         v3 = obj.verts(obj.f(faceIndex,3)',:);
         faceNormals(faceIndex,:) = unit(cross(v2-v1,v3-v1));
         obj.fn = faceNormals;
+    end
+end
+
+function CreateLightCurtain()
+    for i=0:0.5:2
+        x = [1,2];
+        y = [-2.5,-2];
+        z = [i,i];
+        hold on
+        plot3(x,y,z,'--rs','LineWidth',0.1);
+        hold off
     end
 end
