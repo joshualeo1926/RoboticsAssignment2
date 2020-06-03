@@ -36,7 +36,7 @@ gantryPos = transl(0, -0.25, 0.1);
 %gantryMotorPos = transl(-1.4, -0.25, 0.57);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
-cubePos = transl(1.8, -1.5, 0);
+cubePos = transl(1.8, -3, 0);
 
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
@@ -76,11 +76,14 @@ itteration = 1;
 insideWorkspace = false;
 while 1
     %read GUI
+    % Checks If Power Switch is turned on
     pause(0.00001)
     powerState = gui.GetPowerValue();
     while(powerState == "On")
         pause(0.00001)
+        % Checks if Teach Mode Button is selected
         teachMode = gui.GetTeachModeValue();
+        % ------TEACH MODE-------
         if(teachMode == 1)
             clc
             clf
@@ -103,6 +106,7 @@ while 1
                 qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
                 robot.model.plot(qMatrix);
                 pause(0.00001)
+                % Checks if the 2nd mode of Teach Mode is selected
                 teachMode2 = gui.GetTeachMode2Value();
                 if(teachMode2 == 1)
                     pause(0.00001)
@@ -136,6 +140,7 @@ while 1
                 %end
             %end
             
+            %targetIdentified = CameraScanner();
             
             % Move Gantry Crane
             pause(0.00001)
@@ -149,13 +154,15 @@ while 1
             
             % Move the cube for Light Curtain
             pause(0.00001)
-            cubeValue = 2.8 * gui.GetLightBlockSlider()/100;
-            cube.mesh.Vertices(:, 2) = cube.verts(:, 2) -  cubeValue;
+            cubeValue = 1.5 * gui.GetLightBlockSlider()/100;
+            cube.mesh.Vertices(:, 2) = cube.verts(:, 2) + cubeValue;
             
-            %resetButtonVal = gui.GetResetValue();
-            %if resetButtonVal
-            %    insideWorkspace = false;
-            %end
+            pause(0.00001)
+            resetButtonVal = gui.GetResetValue();
+            if (resetButtonVal == 1)
+                insideWorkspace = false;
+            end
+            
             if CheckLightCurtain(lines, cube)
                 insideWorkspace = true;
             end
@@ -163,6 +170,7 @@ while 1
             
             % move to workbench
             pause(0.00001);
+            % Checks if the EStop Button is pushed
             eStopValue = gui.GetEStopValue();
             if ~insideWorkspace && eStopValue == 0
                 if step == 1
@@ -637,4 +645,41 @@ if (t < 0.0 || (s + t) > 1.0)  % intersectP is outside Triangle
 end
 
 result = 1;                      % intersectP is in Triangle
+end
+
+function identified = CameraScanner()
+    %Get image from webcam
+    cam = webcam;
+    Image = snapshot(cam);
+
+    %Read Target
+    Target = imread('StopSign1.jpg');
+    Target_Image = rgb2gray(Target);
+
+    %Read Scene
+    Scene_Image = rgb2gray(Image);
+
+    %Detect Features
+    Target_Points = detectSURFFeatures(Target_Image);
+    Scene_Points = detectSURFFeatures(Scene_Image);
+
+    %Extract Points of Interest
+    [Target_Features, Target_Points] = extractFeatures(Target_Image, Target_Points);
+    [Scene_Features, Scene_Points] = extractFeatures(Scene_Image, Scene_Points);
+
+    %Match Features
+    Matched_Pairs = matchFeatures(Target_Features, Scene_Features);
+
+    %Display Matched Features
+    Matched_Target_Points = Target_Points(Matched_Pairs(:, 1), :);
+    Matched_Scene_Points = Scene_Points(Matched_Pairs(:, 2), :);
+    
+    showMatchedFeatures(Target_Image, Scene_Image, Matched_Target_Points, Matched_Scene_Points, 'montage');
+    
+    Matched_Scene_Points.Count;
+    if(Matched_Scene_Points.Count >= 20)
+        identified = true;
+    else
+        identified = false;
+    end
 end
