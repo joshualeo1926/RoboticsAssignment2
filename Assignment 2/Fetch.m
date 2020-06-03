@@ -198,8 +198,7 @@ classdef Fetch < handle
             qdot = zeros(steps,7);
             theta = zeros(3,steps); 
             x = zeros(3,steps);
-
-            s = lspb(0,1,steps);   
+            s = lspb(0,1,steps); 
             for i=1:steps
                 x(1,i) = (1-s(i))*initialPos(1, 4) + s(i)*targetPos(1, 4);
                 x(2,i) = (1-s(i))*initialPos(2, 4) + s(i)*targetPos(2, 4);
