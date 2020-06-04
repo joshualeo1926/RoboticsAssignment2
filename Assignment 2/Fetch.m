@@ -81,7 +81,11 @@ classdef Fetch < handle
             end 
         end
         
-        function qMatrix = Move(self, targetPos)
+        function qMatrix = Move(self, targetPos, varargin)
+            oldQlim = self.model.qlim;
+            if nargin>2
+                self.model.qlim = varargin{1};
+            end
             steps = 50;
             initialPos = self.model.getpos;
             finalPos = self.model.ikcon(targetPos, initialPos);
@@ -90,6 +94,7 @@ classdef Fetch < handle
             for i = 1:steps
                 qMatrix(i, :) = (1-s(i))*initialPos + s(i)*finalPos;
             end
+            self.model.qlim = oldQlim;
         end
         
         function qMatrix = MoveJointState(self, jointState)
@@ -124,9 +129,13 @@ classdef Fetch < handle
             end  
         end
         
-        function qMatrix = ArmRMRCPos(self, targetPos)
+        function qMatrix = ArmRMRCPos(self, targetPos, varargin)
+            oldQlim = self.model.qlim;
+            if nargin>2
+                self.model.qlim = varargin{1};
+            end
             initialPos = self.model.fkine(self.model.getpos);
-            t = 0.5;   
+            t = 1;   %0.5
             deltaT = 0.05;   
             steps = t/deltaT;  
             epsilon = 0.1;    
@@ -172,7 +181,14 @@ classdef Fetch < handle
                 
                 invJ = inv(J'*J + lambda *eye(7))*J';                        
                 qdot(i,:) = (invJ*xdot)';                                             
-                for j = 1:7                                        
+                for j = 1:7
+                    if j == 3 || j == 5 || j == 7
+                        if qMatrix(i,j) >= 180
+                           qMatrix(i,j) = mod(qMatrix(i,j), -180);
+                        elseif qMatrix(i,j) <= -180
+                           qMatrix(i,j) = mod(qMatrix(i,j), -180);
+                        end
+                    end
                     if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)   
                         qdot(i,j) = 0;
                     elseif qMatrix(i,j) + deltaT*qdot(i,j) > self.model.qlim(j,2)
@@ -181,6 +197,7 @@ classdef Fetch < handle
                 end
                 qMatrix(i+1,:) = qMatrix(i,:) + deltaT*qdot(i,:);  
             end
+            self.model.qlim = oldQlim;
         end
 
         function qMatrix = ArmRMRCJoints(self, targetJoints)

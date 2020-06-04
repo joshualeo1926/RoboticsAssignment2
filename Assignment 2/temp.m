@@ -25,6 +25,7 @@ close all;
     gantry = CreateObject(gantryPath,gantryMotorPos);
     cube = CreateObject(cubePath,cubePos);
     CreateLightCurtain();
+    
 %     numel(cube)
 %     numel(gantry)
 %         for j = 1:numel(cube)

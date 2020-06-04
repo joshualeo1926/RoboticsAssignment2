@@ -329,7 +329,7 @@ while 1
                 % place wrench 1
                 elseif step == 10
                     if get_matrix == 1
-                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3255,... %-0.3275
+                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
                             workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                         get_matrix = 0;
                     end
@@ -430,7 +430,7 @@ while 1
                 elseif step == 16
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                            workBenchPos(2, 4) + 0.03, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                            workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -493,7 +493,7 @@ while 1
                         step = step + 1;
                     end  
                     
-                elseif step == 20
+                elseif step == 17
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
@@ -510,7 +510,7 @@ while 1
                         step = step + 1;
                     end  
                     
-                 elseif step == 21
+                 elseif step == 18
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
@@ -525,12 +525,11 @@ while 1
                         get_matrix = 1;
                         step = step + 1;
                     end 
-                
-                 % Hang Wrench 3
-                 elseif step == 22
+
+                 elseif step == 19
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                            workBenchPos(2, 4) + 0.045, workBenchPos(3, 4) + 0.0365)*trotx(-pi/2));
+                            workBenchPos(2, 4), workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -543,7 +542,7 @@ while 1
                         step = step + 1;
                     end
                     
-                elseif step == 23
+                elseif step == 20
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
@@ -561,7 +560,7 @@ while 1
                     end 
                     
                 % done
-                elseif step == 24
+                elseif step == 21
                     disp('DONE!')
                     break
                 end
