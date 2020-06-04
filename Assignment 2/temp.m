@@ -14,7 +14,7 @@ close all;
 %%    
     
     
-    
+
     currentFile = mfilename( 'fullpath' );
     [pathstr,~,~] = fileparts( currentFile );
     
@@ -27,16 +27,15 @@ close all;
     CreateLightCurtain();
 %     numel(cube)
 %     numel(gantry)
-        for j = 1:numel(cube)
-            [intersectP,check] = LinePlaneIntersection(cube.fn(size,:),vertOnPlane,tr(1:3,4,i)',tr(1:3,4,i+1)'); 
-            if(result == 0)
-                    rCount = rCount + 1;
-            elseif(result == 1)
-                disp("collision");
-            end
-        end
-	
-    
+%         for j = 1:numel(cube)
+%             [intersectP,check] = LinePlaneIntersection(cube.fn(size,:),vertOnPlane,tr(1:3,4,i)',tr(1:3,4,i+1)'); 
+%             if(result == 0)
+%                     rCount = rCount + 1;
+%             elseif(result == 1)
+%                 disp("collision");
+%             end
+%         end
+
 %%
 % currentFile = mfilename( 'fullpath' );
 % [pathstr,~,~] = fileparts( currentFile );
