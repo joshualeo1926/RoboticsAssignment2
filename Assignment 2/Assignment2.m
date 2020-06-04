@@ -23,7 +23,8 @@ clear all;
 close all;
 clf;
 clc;
-
+lighting gouraud
+lightangle(gca,-60,20)
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
 % Set all locations
@@ -41,7 +42,7 @@ cubePos = transl(1.8, -3, 0);
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
 [pathstr,~,~] = fileparts( currentFile );
-workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench.ply');
+workBenchPath = fullfile(pathstr , '..', 'PLY', 'WorkBench2.ply');
 wrench1Path = fullfile(pathstr , '..', 'PLY', 'Wrench1.ply');
 wrench2Path = fullfile(pathstr , '..', 'PLY', 'Wrench2.ply');
 wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
@@ -602,7 +603,7 @@ function obj = CreateObject(file, pos)
     obj.verts(:, 3) = obj.verts(:, 3) + pos(3, 4);
     hold on;
     obj.mesh = trisurf(f, obj.verts(:, 1), obj.verts(:, 2),...
-        obj.verts(:, 3), 'FaceVertexCData', obj.vertexColours, 'EdgeLighting', 'flat');
+        obj.verts(:, 3), 'FaceVertexCData', obj.vertexColours, 'EdgeLighting', 'flat', 'LineStyle', 'none');
     hold off;
     
     faceNormals = zeros(size(obj.f,1),3);
