@@ -32,7 +32,7 @@ for qIndex = 1:size(qMatrix,1)
                     x = [-1 -1 0 1 1 1 0 -1];
                     y = [0 1 1 1 0 -1 -1 -1];
 
-                    radius = 0.07;
+                    radius = 0.08; %0.07
 
                     s = radius*x(j)*s;
                     r = radius*y(j)*r;

@@ -115,12 +115,12 @@ classdef Fetch < handle
                 stopMotion = 0;
                 for j = 1:numel(environment)
                     [result, intersectP, i] = IsCollision(self.model, qMatrix(k, :), environment(j).f, ...
-                        environment(j).verts, environment(j).fn);
+                        environment(j).mesh.Vertices, environment(j).fn);
                     if(result == 0)
                         rCount = rCount + 1;
                     elseif(result == 1)
                         isCollision = 1;
-                        if i == 7 && strcmp(environment(1).name{1}, 'WorkBench2') || strcmp(environment(1).name{1}, 'WorkBench')
+                        if i == 7 && strcmp(environment(j).name{1}, 'WorkBench2') || strcmp(environment(j).name{1}, 'WorkBench')
                             isCollision = 0;
                         end
                         break
@@ -274,24 +274,11 @@ classdef Fetch < handle
                     end
                 end
             end
-            %{
-            for i = 1:numel(environment)
-                for ang = 0:0.3:2*pi
-                    xp=self.collisionRadius*cos(ang);
-                    yp=self.collisionRadius*sin(ang);
-                    zMin = self.model.base(3, 4) - 0.5;
-                    zMax = self.model.base(3, 4) + 0.43;
-                    for faceIndex = 1:size(environment(i).f, 1) 
-                        vertOnPlane = environment(i).mesh.Vertices(environment(i).f(faceIndex,1)',:);
-                        [intersectP,check] = LinePlaneIntersection(environment(i).fn(faceIndex,:), vertOnPlane, [xp yp zMin], [xp yp zMax]); 
-                        if check == 1 && IsIntersectionPointInsideTriangle(intersectP, environment(i).mesh.Vertices(environment(i).f(faceIndex,:)',:))
-                            result = true;
-                            return
-                        end
-                    end
-                end
+            [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment);
+            if isCollision
+                result = true;
+                return
             end
-            %}
         end
         
         function AttachObject(self, object)
