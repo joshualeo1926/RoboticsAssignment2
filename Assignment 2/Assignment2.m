@@ -2,7 +2,8 @@
     PLY FILES:
         PART                                |CREATOR
         ====================================|==========
-        FETCHROBOT(arm links and base)      |ROS/GAZIBO
+        FETCHROBOT(arm links and base)      |ROS/GAZIBO - https://docs.fetchrobotics.com/gazebo.html
+                                                        - https://github.com/fetchrobotics/fetch_gazebo
         WORKBENCH                           |Joshua Leo
         WRENCH (1,2 & 3)                    |Joshua Leo
         GANTRY                              |Joshua Leo
@@ -17,14 +18,14 @@
         BrickWall                           |Bernard Hermant - https://unsplash.com/s/photos/brick-wall
     
     CODE:
-        FUNCTOION/FILE                      |CREATOR
+        FUNCTOION/FILE                      |CREATOR                            
         ====================================|==========
-        IsCollion                           |41013 robotics/Dr.Gavin Paul 
+        IsCollion                           |41013 robotics/Dr.Gavin Paul
         IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
         LinePlaneIntersection               |41013 robotics/Dr.Gavin Paul
         IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
         GetLinkPoses                        |41013 robotics/Dr.Gavin Paul 
-        Move/RMRC                           |41013 robotics/Dr.Gavin Paul
+        Move/RMRC LAB9 - tutorial           |41013 robotics/Dr.Gavin Paul
 %}
 
 clear all;
@@ -37,12 +38,11 @@ set(0, 'DefaultFigureWindowStyle', 'docked')
 
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
-workBenchPos = transl(0, 1, 0.75); %z was 0.75
+workBenchPos = transl(0, 1, 0.75);
 wrench1Pos = transl(-0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench3Pos = transl(0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 gantryPos = transl(0, -0.25, 0.1);
-%gantryMotorPos = transl(-1.4, -0.25, 0.57);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 cubePos = transl(1.8, -3, 0);
@@ -70,46 +70,17 @@ gantry = CreateObject(gantryPath, gantryPos);
 gantryMotor = CreateObject(gantryMotorPath, gantryMotorPos);
 cube = CreateObject(cubePath,cubePos);
 
-fence1 = CreateObject(fencePath,fencePos);
-fence1Pos = makehgtform('translate',[-1.95,-1.8,1.2]);
-rotatef1 = makehgtform('zrotate', -pi/2);
-updatePoints = [fence1Pos * rotatef1 * [fence1.verts,ones(fence1.vertexCount,1)]']';
-fence1.mesh.Vertices = updatePoints(:,1:3);
+% Create fences
+CreateWorkspace(fencePath, fencePos)
 
-fence2 = CreateObject(fencePath,fencePos);
-fence2Pos = makehgtform('translate',[-1.95,-0.3,1.2]);
-rotatef2 = makehgtform('zrotate', -pi/2);
-updatePoints = [fence2Pos * rotatef2 * [fence2.verts,ones(fence2.vertexCount,1)]']';
-fence2.mesh.Vertices = updatePoints(:,1:3);
-
-fence3 = CreateObject(fencePath,fencePos);
-fence3Pos = makehgtform('translate',[1.95,-1.8,1.2]);
-rotatef3 = makehgtform('zrotate', pi/2);
-updatePoints = [fence3Pos * rotatef3 * [fence3.verts,ones(fence3.vertexCount,1)]']';
-fence3.mesh.Vertices = updatePoints(:,1:3);
-
-fence4 = CreateObject(fencePath,fencePos);
-fence4Pos = makehgtform('translate',[1.95,-0.3,1.2]);
-rotatef4 = makehgtform('zrotate', pi/2);
-updatePoints = [fence4Pos * rotatef4 * [fence4.verts,ones(fence4.vertexCount,1)]']';
-fence4.mesh.Vertices = updatePoints(:,1:3);
-
-fence5 = CreateObject(fencePath,fencePos);
-fence5Pos = makehgtform('translate',[1.95,1.1,1.2]);
-rotatef5 = makehgtform('zrotate', pi/2);
-updatePoints = [fence5Pos * rotatef5 * [fence5.verts,ones(fence5.vertexCount,1)]']';
-fence5.mesh.Vertices = updatePoints(:,1:3);
-
-fence6 = CreateObject(fencePath,fencePos);
-fence6Pos = makehgtform('translate',[-1.95,1.1,1.2]);
-rotatef6 = makehgtform('zrotate', -pi/2);
-updatePoints = [fence6Pos * rotatef6 * [fence6.verts,ones(fence6.vertexCount,1)]']';
-fence6.mesh.Vertices = updatePoints(:,1:3);
-
+% Create light curtain
 lines = CreateLightCurtain();
+
+% Add wall/floor textures
 CreateFloorWall();
-% Create a list of all objects in the envrionment
-environment = [workbench, wrench1, wrench2, wrench3];
+
+% Create a list of all objects in the envrionment to check collision with
+environment = [workbench, gantryMotor, gantry];
 
 % Initialise robot
 name = 'Robot';
@@ -117,6 +88,8 @@ robot = Fetch(fetchBase, workspace, name);
 initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
 figure(1);
 robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
+
+% Initialise GUI
 gui = GUI();
 
 num = webcamlist;
@@ -132,6 +105,7 @@ step = 1;
 get_matrix = 1;
 itteration = 1;
 insideWorkspace = false;
+view(-40, 30)
 while 1
     %read GUI
     % Checks If Power Switch is turned on
@@ -231,7 +205,6 @@ while 1
                 insideWorkspace = true;
             end
             % ========== FETCH CONTROLL ============
-            
             % move to workbench
             pause(0.00001);
             % Checks if the EStop Button is pushed
@@ -262,6 +235,10 @@ while 1
                     if get_matrix == 1
                         %qMatrix = robot.ArmRMRCJoints(deg2rad([92 -50 0 -115 0 15 0]));
                         qMatrix = robot.MoveJointState(deg2rad([92 -50 0 -115 0 15 0]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -278,6 +255,10 @@ while 1
                     if get_matrix == 1
                         %qMatrix = robot.ArmRMRCJoints(deg2rad([92 30 0 -100 0 80 0]));
                         qMatrix = robot.MoveJointState(deg2rad([92 30 0 -100 0 80 0]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -295,6 +276,10 @@ while 1
                     if get_matrix == 1
                         %qMatrix = robot.ArmRMRCPos(transl(0, 0.5, 0.75)*trotx(pi));
                         qMatrix = robot.Move(transl(0, 0.5, 0.75)*trotx(pi));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -334,6 +319,10 @@ while 1
                 elseif step == 6
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(wrench1Pos*trotx(pi)*trotz(pi));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         %qMatrix = robot.Move(wrench1Pos*trotx(pi));
                         get_matrix = 0;
                     end
@@ -351,6 +340,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)-pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -368,6 +361,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                         robot.AttachObject(wrench1);
                     end
@@ -386,6 +383,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -404,6 +405,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3255,... %-0.3275
                             workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -421,6 +426,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         robot.DetachObject()
                         get_matrix = 0;
                     end
@@ -457,6 +466,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)-pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -474,6 +487,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         robot.AttachObject(wrench2);
                         get_matrix = 0;
                     end
@@ -492,6 +509,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.Move(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -510,6 +531,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) + 0.03, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -527,6 +552,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         robot.DetachObject()
                         get_matrix = 0;
                     end
@@ -546,6 +575,10 @@ while 1
                 elseif step == 18
                     if get_matrix == 1
                         qMatrix = robot.Move(wrench3Pos*trotx(pi)*trotz(pi));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -563,6 +596,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -580,6 +617,10 @@ while 1
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         robot.AttachObject(wrench3);
                         get_matrix = 0;
                     end
@@ -598,6 +639,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -616,6 +661,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) + 0.045, workBenchPos(3, 4) + 0.0365)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
@@ -633,6 +682,10 @@ while 1
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                         robot.DetachObject();
                         get_matrix = 0;
                     end
@@ -650,7 +703,7 @@ while 1
                 % done
                 elseif step == 24
                     disp('DONE!')
-                    break
+                    return
                 end
             end
         end
@@ -806,4 +859,42 @@ function CreateFloorWall()
     hold on;
 	surf(xOffset, yOffset, zOffset,'CData',I,'FaceColor','texturemap');
     hold off;
+end
+
+function CreateWorkspace(fencePath, fencePos)
+    fence1 = CreateObject(fencePath,fencePos);
+    fence1Pos = makehgtform('translate',[-1.95,-1.8,1.2]);
+    rotatef1 = makehgtform('zrotate', -pi/2);
+    updatePoints = [fence1Pos * rotatef1 * [fence1.verts,ones(fence1.vertexCount,1)]']';
+    fence1.mesh.Vertices = updatePoints(:,1:3);
+
+    fence2 = CreateObject(fencePath,fencePos);
+    fence2Pos = makehgtform('translate',[-1.95,-0.3,1.2]);
+    rotatef2 = makehgtform('zrotate', -pi/2);
+    updatePoints = [fence2Pos * rotatef2 * [fence2.verts,ones(fence2.vertexCount,1)]']';
+    fence2.mesh.Vertices = updatePoints(:,1:3);
+
+    fence3 = CreateObject(fencePath,fencePos);
+    fence3Pos = makehgtform('translate',[1.95,-1.8,1.2]);
+    rotatef3 = makehgtform('zrotate', pi/2);
+    updatePoints = [fence3Pos * rotatef3 * [fence3.verts,ones(fence3.vertexCount,1)]']';
+    fence3.mesh.Vertices = updatePoints(:,1:3);
+
+    fence4 = CreateObject(fencePath,fencePos);
+    fence4Pos = makehgtform('translate',[1.95,-0.3,1.2]);
+    rotatef4 = makehgtform('zrotate', pi/2);
+    updatePoints = [fence4Pos * rotatef4 * [fence4.verts,ones(fence4.vertexCount,1)]']';
+    fence4.mesh.Vertices = updatePoints(:,1:3);
+
+    fence5 = CreateObject(fencePath,fencePos);
+    fence5Pos = makehgtform('translate',[1.95,1.1,1.2]);
+    rotatef5 = makehgtform('zrotate', pi/2);
+    updatePoints = [fence5Pos * rotatef5 * [fence5.verts,ones(fence5.vertexCount,1)]']';
+    fence5.mesh.Vertices = updatePoints(:,1:3);
+
+    fence6 = CreateObject(fencePath,fencePos);
+    fence6Pos = makehgtform('translate',[-1.95,1.1,1.2]);
+    rotatef6 = makehgtform('zrotate', -pi/2);
+    updatePoints = [fence6Pos * rotatef6 * [fence6.verts,ones(fence6.vertexCount,1)]']';
+    fence6.mesh.Vertices = updatePoints(:,1:3);
 end

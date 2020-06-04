@@ -11,7 +11,7 @@ classdef Fetch < handle
         collisionRadius = 0.29;
         attachedObjects = [];
     end
-    
+
     methods
         function self = Fetch(base, workspace, name)
             if 0 < nargin
@@ -109,25 +109,28 @@ classdef Fetch < handle
             end
         end
         
-        % NOT USED
-        function [isCollision, intersectP, i] = IsArmCollision(self, pose, environment)
-            rCount = 0;
-            stopMotion = 0;
-            for j = 1:numel(environment)
-                [result, intersectP, i] = IsCollision(self.model, pose, environment(j).f, ...
-                    environment(j).verts, environment(j).fn);
-                if(result == 0)
-                    rCount = rCount + 1;
-                elseif(result == 1)
-                    disp(['colliding with ', environment(j).name{1}])
-                    isCollision = 1;
-                    break
-                end
-                environmentSize = size(environment);
-                if rCount == environmentSize(2) && stopMotion == 0
-                    isCollision = 0;
-                end
-            end  
+        function [isCollision, intersectP, i, j] = IsArmCollision(self, qMatrix, environment)
+            for k = 1:size(qMatrix, 1)              
+                rCount = 0;
+                stopMotion = 0;
+                for j = 1:numel(environment)
+                    [result, intersectP, i] = IsCollision(self.model, qMatrix(k, :), environment(j).f, ...
+                        environment(j).verts, environment(j).fn);
+                    if(result == 0)
+                        rCount = rCount + 1;
+                    elseif(result == 1)
+                        isCollision = 1;
+                        if i == 7 && strcmp(environment(1).name{1}, 'WorkBench2') || strcmp(environment(1).name{1}, 'WorkBench')
+                            isCollision = 0;
+                        end
+                        break
+                    end
+                    environmentSize = size(environment);
+                    if rCount == environmentSize(2) && stopMotion == 0
+                        isCollision = 0;
+                    end
+                end  
+            end 
         end
         
         function qMatrix = ArmRMRCPos(self, targetPos, varargin)
@@ -271,6 +274,7 @@ classdef Fetch < handle
                     end
                 end
             end
+            %{
             for i = 1:numel(environment)
                 for ang = 0:0.3:2*pi
                     xp=self.collisionRadius*cos(ang);
@@ -287,6 +291,7 @@ classdef Fetch < handle
                     end
                 end
             end
+            %}
         end
         
         function AttachObject(self, object)
