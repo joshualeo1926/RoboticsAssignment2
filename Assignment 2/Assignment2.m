@@ -29,9 +29,9 @@ set(0, 'DefaultFigureWindowStyle', 'docked')
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
 workBenchPos = transl(0, 1, 0.75); %z was 0.75
-wrench1Pos = transl(-0.1, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-wrench3Pos = transl(0.1, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
+wrench1Pos = transl(-0.1, 0.75, workBenchPos(3, 4) - 0.2);
+wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2);
+wrench3Pos = transl(0.1, 0.75, workBenchPos(3, 4) - 0.2);
 gantryPos = transl(0, -0.25, 0.1);
 %gantryMotorPos = transl(-1.4, -0.25, 0.57);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
