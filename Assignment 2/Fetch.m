@@ -47,6 +47,7 @@ classdef Fetch < handle
                 Data{linkIndex + 1} = d;
             end 
             % Display robot
+            figure(1)
             self.model.plot3d(zeros(1,self.model.n),'noarrow','workspace',self.workspace);
             if isempty(findobj(get(gca,'Children'),'Type','Light'))
                 camlight
