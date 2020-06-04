@@ -7,8 +7,6 @@
         WRENCH (1,2 & 3)                    |Joshua Leo
         GANTRY                              |Joshua Leo
         GANTRY MOTOR                        |Joshua Leo
-<<<<<<< HEAD
-=======
         FENCE                               |KW3DGraphics - https://www.turbosquid.com/3d-models/stadium-fence-3ds-free/545545
                                              Also used in assignment 1 by Johnson Nguyen
     IMAGES:
@@ -17,7 +15,6 @@
         floor                               |http://www.skyliteconstruction.com/
         StopSign1                           |https://www.amazon.com/Roll-Up-Compact-Reflective-Crossbracing-Included/dp/B008J4ZLW6
         BrickWall                           |Bernard Hermant - https://unsplash.com/s/photos/brick-wall
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
     
     CODE:
         FUNCTOION/FILE                      |CREATOR
@@ -28,10 +25,6 @@
         IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
         GetLinkPoses                        |41013 robotics/Dr.Gavin Paul 
         Move/RMRC                           |41013 robotics/Dr.Gavin Paul
-<<<<<<< HEAD
-=======
-
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 %}
 
 clear all;
@@ -40,33 +33,19 @@ clf;
 clc;
 
 set(0, 'DefaultFigureWindowStyle', 'docked')
-<<<<<<< HEAD
-=======
-% f1 = figure;
-% f2 = figure;
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
 workBenchPos = transl(0, 1, 0.75); %z was 0.75
-<<<<<<< HEAD
 wrench1Pos = transl(-0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench3Pos = transl(0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-=======
-wrench1Pos = transl(-0.1, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-wrench3Pos = transl(0.1, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 gantryPos = transl(0, -0.25, 0.1);
 %gantryMotorPos = transl(-1.4, -0.25, 0.57);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 cubePos = transl(1.8, -3, 0);
-<<<<<<< HEAD
-=======
 fencePos = transl(0,0,0);
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
@@ -78,16 +57,10 @@ wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
 gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
 gantryMotorPath = fullfile(pathstr , '..', 'PLY', 'gantrymotor2.ply');
 cubePath = fullfile(pathstr , '..', 'PLY', 'cube.ply');
-<<<<<<< HEAD
-    
-
-% Create objects
-=======
 fencePath = fullfile(pathstr , '..', 'PLY', 'fence.ply');
 
 % Create objects
 figure(1);
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 workbench = CreateObject(workBenchPath, workBenchPos);
 wrench1 = CreateObject(wrench1Path, wrench1Pos);
 wrench2 = CreateObject(wrench2Path, wrench2Pos);
@@ -95,9 +68,6 @@ wrench3 = CreateObject(wrench3Path, wrench3Pos);
 gantry = CreateObject(gantryPath, gantryPos);
 gantryMotor = CreateObject(gantryMotorPath, gantryMotorPos);
 cube = CreateObject(cubePath,cubePos);
-<<<<<<< HEAD
-lines = CreateLightCurtain();
-=======
 
 fence1 = CreateObject(fencePath,fencePos);
 fence1Pos = makehgtform('translate',[-1.95,-1.8,1.2]);
@@ -136,8 +106,6 @@ updatePoints = [fence6Pos * rotatef6 * [fence6.verts,ones(fence6.vertexCount,1)]
 fence6.mesh.Vertices = updatePoints(:,1:3);
 
 lines = CreateLightCurtain();
-CreateFloor();
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 % Create a list of all objects in the envrionment
 environment = [workbench, wrench1, wrench2, wrench3];
 
@@ -145,10 +113,6 @@ environment = [workbench, wrench1, wrench2, wrench3];
 name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
 initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
-<<<<<<< HEAD
-robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
-gui = GUI();
-=======
 figure(1);
 robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 gui = GUI();
@@ -160,7 +124,6 @@ if(TH == 0)
     cam = webcam;
 end
 
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 %%
 % Mail loop
 step = 1;
@@ -185,10 +148,7 @@ while 1
             fetchBase = transl(0, 0, 0);
             robot = Fetch(fetchBase, workspace, name);
             q = deg2rad([92 -80 0 -100 0 85 0]);
-<<<<<<< HEAD
-=======
-            figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+            figure(1);
             robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0);
             while(teachMode == 1)
                 pause(0.00001)
@@ -201,10 +161,7 @@ while 1
                 joint6 = gui.GetJoint6Value();
                 joint7 = gui.GetJoint7Value();
                 qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
-<<<<<<< HEAD
-=======
-                figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                figure(1);
                 robot.model.plot(qMatrix);
                 pause(0.00001)
                 % Checks if the 2nd mode of Teach Mode is selected
@@ -219,10 +176,7 @@ while 1
                     joint6 = gui.GetJoint6Value();
                     joint7 = gui.GetJoint7Value();
                     qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
-<<<<<<< HEAD
-=======
-                    figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                    figure(1);
                     robot.model.plot(qMatrix);
                 end
             end
@@ -244,17 +198,11 @@ while 1
                     %end
                 %end
             %end
-<<<<<<< HEAD
             
-            %targetIdentified = CameraScanner();
-=======
-            %Get image from webcam--------------
             if(TH == 0)
                 Image = snapshot(cam);
                 targetIdentified = CameraScanner(Image);
-                targetIdentified
             end
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
             
             % Move Gantry Crane
             pause(0.00001)
@@ -298,10 +246,7 @@ while 1
                         if collision == 0   
                             robot.model.base = basePos(:, :, itteration);
                             itteration = itteration + 1;
-<<<<<<< HEAD
-=======
-                            figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                            figure(1);
                             robot.model.plot(robot.model.getpos)
                         end
                     elseif itteration > size(basePos, 3)
@@ -318,10 +263,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-<<<<<<< HEAD
-=======
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -337,10 +279,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-<<<<<<< HEAD
-=======
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -357,10 +296,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-<<<<<<< HEAD
-=======
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -381,20 +317,15 @@ while 1
                         if collision == 0   
                             robot.model.base = basePos(:, :, itteration);
                             itteration = itteration + 1;
-<<<<<<< HEAD
                             currentPos = robot.model.getpos;
+                            figure(1);
                             robot.model.plot(currentPos)
-=======
-                            figure(1)
-                            robot.model.plot(robot.model.getpos)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         end
                     elseif itteration > size(basePos, 3)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
                     end
-<<<<<<< HEAD
                     
                 % ======WRENCH 1======
                 % pick up first wrench
@@ -405,19 +336,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-=======
-
-                % ======WRENCH 1======   
-                % pick up first wrench
-                elseif step == 6
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(wrench1Pos*trotx(pi));
-                        qMatrix = robot.Move(wrench1Pos*trotx(pi));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -425,7 +344,6 @@ while 1
                         get_matrix = 1;
                         step = step + 1;
                     end  
-<<<<<<< HEAD
                     
                 elseif step == 7
                     if get_matrix == 1
@@ -434,6 +352,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -451,31 +370,14 @@ while 1
                         robot.AttachObject(wrench1);
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-
-                % pre placment position wrench 1
-                elseif step == 7
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(wrench1Pos(1, 4),...
-                        %    wrench1Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        qMatrix = robot.Move(transl(wrench1Pos(1, 4),...
-                            wrench1Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        get_matrix = 0;
-                        robot.AttachObject(wrench1)
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end  
 
                 elseif step == 9
@@ -485,25 +387,9 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end 
-
-                % pre placment position wrench 1
-                elseif step == 8
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
-                            workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        get_matrix = 0;
-                     end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -512,21 +398,14 @@ while 1
                     end  
 
                 % place wrench 1
-<<<<<<< HEAD
                 elseif step == 10
-=======
-                elseif step == 9
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                     if get_matrix == 1
-                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
+                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3255,... %-0.3275
                             workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-<<<<<<< HEAD
-=======
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         robot.UpdateObjectPos
                         itteration = itteration + 1;
@@ -534,7 +413,6 @@ while 1
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end
  
                 elseif step == 11
@@ -545,32 +423,14 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end 
-
-                % go back
-                elseif step == 10
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
-                            workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        get_matrix = 0;
-                        robot.DetachObject()
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end
 
                 % ======WRENCH 2======
@@ -581,30 +441,15 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end  
-
-                % ======WRENCH 2======    
-                % pick up second wrench
-                elseif step == 11
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(wrench2Pos*trotx(pi));
-                        qMatrix = robot.Move(wrench2Pos*trotx(pi));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
                     end  
-<<<<<<< HEAD
                     
                 elseif step == 13
                     if get_matrix == 1
@@ -613,6 +458,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -630,31 +476,14 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-
-                % pre placment position wrench 2
-                elseif step == 12
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(wrench2Pos(1, 4),...
-                        %    wrench2Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        qMatrix = robot.Move(transl(wrench2Pos(1, 4),...
-                            wrench2Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        get_matrix = 0;
-                        robot.AttachObject(wrench2)
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end
                     
                  elseif step == 15
@@ -664,54 +493,25 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end 
-
-                % pre placment position wrench 2
-                elseif step == 13
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4),...
-                            workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end 
                     
                 % place wrench 2
                 elseif step == 16
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                            workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
+                            workBenchPos(2, 4) + 0.03, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-=======
-                    end  
-
-                % place wrench 2
-                elseif step == 14
-                    if get_matrix == 1
-                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                            workBenchPos(2, 4) + 0.035, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         robot.UpdateObjectPos
                         itteration = itteration + 1;
@@ -719,7 +519,6 @@ while 1
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end      
 
                 elseif step == 17
@@ -730,26 +529,9 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end 
-
-                % go back
-                elseif step == 15
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4),...
-                            workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.065)*trotx(-pi/2));
-                        get_matrix = 0;
-                        robot.DetachObject()
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -759,13 +541,13 @@ while 1
 
                 % ======WRENCH 3======
                 % pick up third wrench
-<<<<<<< HEAD
                 elseif step == 18
                     if get_matrix == 1
                         qMatrix = robot.Move(wrench3Pos*trotx(pi)*trotz(pi));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -782,28 +564,17 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                elseif step == 16
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(wrench3Pos*trotx(pi));
-                        qMatrix = robot.Move(wrench3Pos*trotx(pi));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
                     end  
-<<<<<<< HEAD
                     
-                elseif step == 17
+                elseif step == 20
                     if get_matrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
@@ -811,99 +582,52 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-
-                % pre placment position wrench 3
-                elseif step == 17
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(wrench3Pos(1, 4),...
-                        %    wrench3Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        qMatrix = robot.Move(transl(wrench3Pos(1, 4),...
-                            wrench3Pos(2, 4), workBenchPos(3, 4) + 0.1)*trotx(pi));
-                        get_matrix = 0;
-                        robot.AttachObject(wrench3)
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end  
                     
-                 elseif step == 18
+                 elseif step == 21
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-=======
-                    end 
-
-                % pre placment position wrench 3
-                elseif step == 18
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4) + 0.305,...
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-<<<<<<< HEAD
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end 
-
-                 elseif step == 19
+                
+                 % Hang Wrench 3
+                 elseif step == 22
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                            workBenchPos(2, 4), workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
+                            workBenchPos(2, 4) + 0.045, workBenchPos(3, 4) + 0.0365)*trotx(-pi/2));
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end  
-
-                % place wrench 3
-                elseif step == 19
-                    if get_matrix == 1
-                        qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                            workBenchPos(2, 4) + 0.04, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        get_matrix = 0;
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end
                     
-                elseif step == 20
+                elseif step == 23
                     if get_matrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
@@ -911,42 +635,18 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
-=======
-                    end 
-
-                % go back
-                elseif step == 20
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
-                        %    workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        qMatrix = robot.Move(transl(workBenchPos(1, 4) + 0.305,...
-                            workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        get_matrix = 0;
-                        robot.DetachObject()
-                    end
-                    if itteration <= size(qMatrix, 1)
-                        figure(1)
-                        robot.model.plot(qMatrix(itteration, :))
-                        robot.UpdateObjectPos
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
                         get_matrix = 1;
                         step = step + 1;
-<<<<<<< HEAD
                     end 
                     
-=======
-                    end                
-
-                % go to saftey sign?
-
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
                 % done
-                elseif step == 21
+                elseif step == 24
                     disp('DONE!')
                     break
                 end
@@ -1002,17 +702,10 @@ end
 
 function lines = CreateLightCurtain()
     lineGapZ = 0.5;
-<<<<<<< HEAD
     LineStartX = 1;
     LineEndX = 2;
     LineStartY = -2.5;
     LineEndY = -2;
-=======
-    LineStartX = -2;
-    LineEndX = 2;
-    LineStartY = -2.5;
-    LineEndY = -2.5;
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
     LineStartZ = 0;
     LineEndZ = 2;
     %lines = nan((LineEndZ-LineStartZ)/lineGapZ, 1);
@@ -1021,25 +714,15 @@ function lines = CreateLightCurtain()
        line.X = [LineStartX, LineEndX];
        line.Y = [LineStartY, LineEndY];
        line.Z = [zVal, zVal];
-<<<<<<< HEAD
        hold on
        plot3(line.X,line.Y,line.Z,'--rs','LineWidth',0.1);
        hold off
-=======
-       figure(1)
-       hold on;
-       plot3(line.X,line.Y,line.Z,'--rs','LineWidth',0.1);
-       hold off;
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
        lines(i) = line;
     end
 end
 
 function result = IsIntersectionPointInsideTriangle(intersectP,triangleVerts)
-<<<<<<< HEAD
 
-=======
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 u = triangleVerts(2,:) - triangleVerts(1,:);
 v = triangleVerts(3,:) - triangleVerts(1,:);
 
@@ -1069,25 +752,13 @@ end
 result = 1;                      % intersectP is in Triangle
 end
 
-<<<<<<< HEAD
-function identified = CameraScanner()
-    %Get image from webcam
-    cam = webcam;
-    Image = snapshot(cam);
-
-=======
 function identified = CameraScanner(scene)
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
     %Read Target
     Target = imread('StopSign1.jpg');
     Target_Image = rgb2gray(Target);
 
     %Read Scene
-<<<<<<< HEAD
-    Scene_Image = rgb2gray(Image);
-=======
     Scene_Image = rgb2gray(scene);
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 
     %Detect Features
     Target_Points = detectSURFFeatures(Target_Image);
@@ -1104,13 +775,8 @@ function identified = CameraScanner(scene)
     Matched_Target_Points = Target_Points(Matched_Pairs(:, 1), :);
     Matched_Scene_Points = Scene_Points(Matched_Pairs(:, 2), :);
     
-<<<<<<< HEAD
-    showMatchedFeatures(Target_Image, Scene_Image, Matched_Target_Points, Matched_Scene_Points, 'montage');
-=======
     figure(2);
     showMatchedFeatures(Target_Image, Scene_Image, Matched_Target_Points, Matched_Scene_Points, 'montage');
-    title('Putative point matches');
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
     
     Matched_Scene_Points.Count;
     if(Matched_Scene_Points.Count >= 20)
@@ -1118,20 +784,4 @@ function identified = CameraScanner(scene)
     else
         identified = false;
     end
-<<<<<<< HEAD
-=======
-end
-
-function CreateFloor()
-    I = imread('floor.jpg');
-	xOffset = [-2 2];
-	yOffset = [-3 2];
-	zOffset = [-0.09 -0.09; -0.09 -0.09];
-    figure(1)
-    hold on;
-	surf(xOffset, yOffset, zOffset,'CData',I,'FaceColor','texturemap');
-    hold off;
-    
-    
->>>>>>> eccd5121ecd4616bbda7237ab32b1fa88d031419
 end
