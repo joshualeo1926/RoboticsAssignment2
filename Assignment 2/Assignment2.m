@@ -7,6 +7,14 @@
         WRENCH (1,2 & 3)                    |Joshua Leo
         GANTRY                              |Joshua Leo
         GANTRY MOTOR                        |Joshua Leo
+        FENCE                               |KW3DGraphics - https://www.turbosquid.com/3d-models/stadium-fence-3ds-free/545545
+                                             Also used in assignment 1 by Johnson Nguyen
+    IMAGES:
+        IMAGE                               |CREATOR
+        ====================================|==========
+        floor                               |http://www.skyliteconstruction.com/
+        StopSign1                           |https://www.amazon.com/Roll-Up-Compact-Reflective-Crossbracing-Included/dp/B008J4ZLW6
+        BrickWall                           |Bernard Hermant - https://unsplash.com/s/photos/brick-wall
     
     CODE:
         FUNCTOION/FILE                      |CREATOR
@@ -38,6 +46,7 @@ gantryPos = transl(0, -0.25, 0.1);
 gantryMotorPos = transl(-1.4, -0.25, 1.47);
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 cubePos = transl(1.8, -3, 0);
+fencePos = transl(0,0,0);
 
 % Get path to each PLY file
 currentFile = mfilename( 'fullpath' );
@@ -49,9 +58,10 @@ wrench3Path = fullfile(pathstr , '..', 'PLY', 'Wrench3.ply');
 gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
 gantryMotorPath = fullfile(pathstr , '..', 'PLY', 'gantrymotor2.ply');
 cubePath = fullfile(pathstr , '..', 'PLY', 'cube.ply');
-    
+fencePath = fullfile(pathstr , '..', 'PLY', 'fence.ply');
 
 % Create objects
+figure(1);
 workbench = CreateObject(workBenchPath, workBenchPos);
 wrench1 = CreateObject(wrench1Path, wrench1Pos);
 wrench2 = CreateObject(wrench2Path, wrench2Pos);
@@ -59,7 +69,45 @@ wrench3 = CreateObject(wrench3Path, wrench3Pos);
 gantry = CreateObject(gantryPath, gantryPos);
 gantryMotor = CreateObject(gantryMotorPath, gantryMotorPos);
 cube = CreateObject(cubePath,cubePos);
+
+fence1 = CreateObject(fencePath,fencePos);
+fence1Pos = makehgtform('translate',[-1.95,-1.8,1.2]);
+rotatef1 = makehgtform('zrotate', -pi/2);
+updatePoints = [fence1Pos * rotatef1 * [fence1.verts,ones(fence1.vertexCount,1)]']';
+fence1.mesh.Vertices = updatePoints(:,1:3);
+
+fence2 = CreateObject(fencePath,fencePos);
+fence2Pos = makehgtform('translate',[-1.95,-0.3,1.2]);
+rotatef2 = makehgtform('zrotate', -pi/2);
+updatePoints = [fence2Pos * rotatef2 * [fence2.verts,ones(fence2.vertexCount,1)]']';
+fence2.mesh.Vertices = updatePoints(:,1:3);
+
+fence3 = CreateObject(fencePath,fencePos);
+fence3Pos = makehgtform('translate',[1.95,-1.8,1.2]);
+rotatef3 = makehgtform('zrotate', pi/2);
+updatePoints = [fence3Pos * rotatef3 * [fence3.verts,ones(fence3.vertexCount,1)]']';
+fence3.mesh.Vertices = updatePoints(:,1:3);
+
+fence4 = CreateObject(fencePath,fencePos);
+fence4Pos = makehgtform('translate',[1.95,-0.3,1.2]);
+rotatef4 = makehgtform('zrotate', pi/2);
+updatePoints = [fence4Pos * rotatef4 * [fence4.verts,ones(fence4.vertexCount,1)]']';
+fence4.mesh.Vertices = updatePoints(:,1:3);
+
+fence5 = CreateObject(fencePath,fencePos);
+fence5Pos = makehgtform('translate',[1.95,1.1,1.2]);
+rotatef5 = makehgtform('zrotate', pi/2);
+updatePoints = [fence5Pos * rotatef5 * [fence5.verts,ones(fence5.vertexCount,1)]']';
+fence5.mesh.Vertices = updatePoints(:,1:3);
+
+fence6 = CreateObject(fencePath,fencePos);
+fence6Pos = makehgtform('translate',[-1.95,1.1,1.2]);
+rotatef6 = makehgtform('zrotate', -pi/2);
+updatePoints = [fence6Pos * rotatef6 * [fence6.verts,ones(fence6.vertexCount,1)]']';
+fence6.mesh.Vertices = updatePoints(:,1:3);
+
 lines = CreateLightCurtain();
+CreateFloorWall();
 % Create a list of all objects in the envrionment
 environment = [workbench, wrench1, wrench2, wrench3];
 
@@ -67,8 +115,17 @@ environment = [workbench, wrench1, wrench2, wrench3];
 name = 'Robot';
 robot = Fetch(fetchBase, workspace, name);
 initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
+figure(1);
 robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 gui = GUI();
+
+num = webcamlist;
+TH = isempty(num);
+
+if(TH == 0)
+    cam = webcam;
+end
+
 %%
 % Mail loop
 step = 1;
@@ -93,6 +150,7 @@ while 1
             fetchBase = transl(0, 0, 0);
             robot = Fetch(fetchBase, workspace, name);
             q = deg2rad([92 -80 0 -100 0 85 0]);
+            figure(1);
             robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0);
             while(teachMode == 1)
                 pause(0.00001)
@@ -105,6 +163,7 @@ while 1
                 joint6 = gui.GetJoint6Value();
                 joint7 = gui.GetJoint7Value();
                 qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
+                figure(1);
                 robot.model.plot(qMatrix);
                 pause(0.00001)
                 % Checks if the 2nd mode of Teach Mode is selected
@@ -119,6 +178,7 @@ while 1
                     joint6 = gui.GetJoint6Value();
                     joint7 = gui.GetJoint7Value();
                     qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
+                    figure(1);
                     robot.model.plot(qMatrix);
                 end
             end
@@ -141,7 +201,10 @@ while 1
                 %end
             %end
             
-            %targetIdentified = CameraScanner();
+            if(TH == 0)
+                Image = snapshot(cam);
+                targetIdentified = CameraScanner(Image);
+            end
             
             % Move Gantry Crane
             pause(0.00001)
@@ -185,6 +248,7 @@ while 1
                         if collision == 0   
                             robot.model.base = basePos(:, :, itteration);
                             itteration = itteration + 1;
+                            figure(1);
                             robot.model.plot(robot.model.getpos)
                         end
                     elseif itteration > size(basePos, 3)
@@ -201,6 +265,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -216,6 +281,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -232,6 +298,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -253,6 +320,7 @@ while 1
                             robot.model.base = basePos(:, :, itteration);
                             itteration = itteration + 1;
                             currentPos = robot.model.getpos;
+                            figure(1);
                             robot.model.plot(currentPos)
                         end
                     elseif itteration > size(basePos, 3)
@@ -270,6 +338,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
@@ -285,6 +354,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -302,6 +372,7 @@ while 1
                         robot.AttachObject(wrench1);
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -318,6 +389,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -335,6 +407,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         robot.UpdateObjectPos
                         itteration = itteration + 1;
@@ -352,6 +425,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -369,6 +443,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -385,6 +460,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -402,6 +478,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -418,6 +495,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -435,6 +513,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :))
                         robot.UpdateObjectPos
                         itteration = itteration + 1;
@@ -452,6 +531,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -469,6 +549,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -485,6 +566,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -502,6 +584,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -518,6 +601,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -535,6 +619,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -552,6 +637,7 @@ while 1
                         get_matrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
+                        figure(1);
                         robot.model.plot(qMatrix(itteration, :));
                         robot.UpdateObjectPos;
                         itteration = itteration + 1;
@@ -618,10 +704,10 @@ end
 
 function lines = CreateLightCurtain()
     lineGapZ = 0.5;
-    LineStartX = 1;
+    LineStartX = -2;
     LineEndX = 2;
     LineStartY = -2.5;
-    LineEndY = -2;
+    LineEndY = -2.5;
     LineStartZ = 0;
     LineEndZ = 2;
     %lines = nan((LineEndZ-LineStartZ)/lineGapZ, 1);
@@ -668,17 +754,13 @@ end
 result = 1;                      % intersectP is in Triangle
 end
 
-function identified = CameraScanner()
-    %Get image from webcam
-    cam = webcam;
-    Image = snapshot(cam);
-
+function identified = CameraScanner(scene)
     %Read Target
     Target = imread('StopSign1.jpg');
     Target_Image = rgb2gray(Target);
 
     %Read Scene
-    Scene_Image = rgb2gray(Image);
+    Scene_Image = rgb2gray(scene);
 
     %Detect Features
     Target_Points = detectSURFFeatures(Target_Image);
@@ -695,6 +777,7 @@ function identified = CameraScanner()
     Matched_Target_Points = Target_Points(Matched_Pairs(:, 1), :);
     Matched_Scene_Points = Scene_Points(Matched_Pairs(:, 2), :);
     
+    figure(2);
     showMatchedFeatures(Target_Image, Scene_Image, Matched_Target_Points, Matched_Scene_Points, 'montage');
     
     Matched_Scene_Points.Count;
@@ -703,4 +786,24 @@ function identified = CameraScanner()
     else
         identified = false;
     end
+end
+
+function CreateFloorWall()
+    I = imread('floor.jpg');
+	xOffset = [-2 2];
+	yOffset = [-3 2];
+	zOffset = [-0.09 -0.09; -0.09 -0.09];
+    figure(1)
+    hold on;
+	surf(xOffset, yOffset, zOffset,'CData',I,'FaceColor','texturemap');
+    hold off;
+    
+    I = imread('brickWall.jpg');
+    xOffset = [-2 2];
+	yOffset = [1.6 1.6];
+	zOffset = [-0.09 -0.09; 3.5 3.5];
+    figure(1)
+    hold on;
+	surf(xOffset, yOffset, zOffset,'CData',I,'FaceColor','texturemap');
+    hold off;
 end
