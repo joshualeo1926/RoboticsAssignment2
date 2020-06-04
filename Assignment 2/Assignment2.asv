@@ -92,12 +92,12 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 % Initialise GUI
 gui = GUI();
 
-% num = webcamlist;
-% TH = isempty(num);
-% 
-% if(TH == 0)
-%     cam = webcam;
-% end
+num = webcamlist;
+TH = isempty(num);
+
+if(TH == 0)
+    cam = webcam;
+end
 
 %%
 % Mail loop
@@ -175,10 +175,10 @@ while 1
                 %end
             %end
             
-%             if(TH == 0)
-%                 Image = snapshot(cam);
-%                 targetIdentified = CameraScanner(Image);
-%             end
+            if(TH == 0)
+                Image = snapshot(cam);
+                targetIdentified = CameraScanner(Image);
+            end
             
             % Move Gantry Crane
             pause(0.00001)
@@ -449,8 +449,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -475,8 +473,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -497,8 +493,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -522,8 +516,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -549,8 +541,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -575,8 +565,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -602,8 +590,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -628,8 +614,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -654,8 +638,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -679,8 +661,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -706,8 +686,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -732,8 +710,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -759,8 +735,6 @@ while 1
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
@@ -785,8 +759,6 @@ while 1
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
