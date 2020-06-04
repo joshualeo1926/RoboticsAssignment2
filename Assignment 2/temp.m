@@ -4,38 +4,10 @@ clc;
 close all;
 
 %%
-    workspace = [-2 2 -2 2 -0.2 1.5];
-    name = 'Robot';
-    fetchBase = transl(0, 0, 0.5);
-    robot = Fetch(fetchBase, workspace, name);
-    initialQMatrix = deg2rad([92 -80 0 -100 0 85 0]);
-    robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
-    %gui = GUI();
-%%    
+    num = webcamlist
+    size(num)
+    TH = isempty(num)
     
-    
-
-    currentFile = mfilename( 'fullpath' );
-    [pathstr,~,~] = fileparts( currentFile );
-    
-    gantryMotorPos = transl(-1.5,1,0);
-    cubePos = transl(1.5, 1.5, 0);
-    gantryPath = fullfile(pathstr , '..', 'PLY', 'gantry.ply');
-    cubePath = fullfile(pathstr , '..', 'PLY', 'cube.ply');
-    gantry = CreateObject(gantryPath,gantryMotorPos);
-    cube = CreateObject(cubePath,cubePos);
-    CreateLightCurtain();
-%     numel(cube)
-%     numel(gantry)
-%         for j = 1:numel(cube)
-%             [intersectP,check] = LinePlaneIntersection(cube.fn(size,:),vertOnPlane,tr(1:3,4,i)',tr(1:3,4,i+1)'); 
-%             if(result == 0)
-%                     rCount = rCount + 1;
-%             elseif(result == 1)
-%                 disp("collision");
-%             end
-%         end
-
 %%
 % currentFile = mfilename( 'fullpath' );
 % [pathstr,~,~] = fileparts( currentFile );
