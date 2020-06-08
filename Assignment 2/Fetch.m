@@ -5,9 +5,6 @@ classdef Fetch < handle
         workspace = [-2 2 -2 2 -2 2];
         name = 'Robot';
         scale = 0;
-        sequence;
-        baseItter = 1;
-        armItter = 1;
         collisionRadius = 0.29;
         attachedObjects = [];
     end
@@ -72,7 +69,7 @@ classdef Fetch < handle
         
         function basePos = MoveBase(self, finalPos)
             initialPos = self.model.base;
-            steps = 50;
+            steps = 25;
             basePos = zeros(4, 4, steps);
             s = lspb(0,1,steps);
             for i = 1:steps
@@ -87,7 +84,7 @@ classdef Fetch < handle
             if nargin>2
                 self.model.qlim = varargin{1};
             end
-            steps = 50;
+            steps = 25;
             initialPos = self.model.getpos;
             finalPos = self.model.ikcon(targetPos, initialPos);
             s = lspb(0,1,steps);
@@ -99,7 +96,7 @@ classdef Fetch < handle
         end
         
         function qMatrix = MoveJointState(self, jointState)
-            steps = 50;
+            steps = 25;
             initialPos = self.model.getpos;
             finalPos = jointState;
             s = lspb(0,1,steps);
@@ -109,13 +106,13 @@ classdef Fetch < handle
             end
         end
         
-        function [isCollision, intersectP, i, j] = IsArmCollision(self, qMatrix, environment)
+        function [isCollision, intersectP, i, j] = IsArmCollision(self, qMatrix, environment, checkType)
             for k = 1:size(qMatrix, 1)              
                 rCount = 0;
                 stopMotion = 0;
                 for j = 1:numel(environment)
                     [result, intersectP, i] = IsCollision(self.model, qMatrix(k, :), environment(j).f, ...
-                        environment(j).mesh.Vertices, environment(j).fn);
+                        environment(j).mesh.Vertices, environment(j).fn, true, checkType);
                     if(result == 0)
                         rCount = rCount + 1;
                     elseif(result == 1)
@@ -138,7 +135,11 @@ classdef Fetch < handle
             if nargin>2
                 self.model.qlim = varargin{1};
             end
-            initialPos = self.model.fkine(self.model.getpos);
+            if nargin>3
+                initialPos = varargin{2};
+            else
+                initialPos = self.model.fkine(self.model.getpos);
+            end
             t = 1;   %0.5
             deltaT = 0.05;   
             steps = t/deltaT;  
@@ -204,8 +205,12 @@ classdef Fetch < handle
             self.model.qlim = oldQlim;
         end
 
-        function qMatrix = ArmRMRCJoints(self, targetJoints)
-            initialPos = self.model.fkine(self.model.getpos);
+        function qMatrix = ArmRMRCJoints(self, targetJoints, varargin)
+            if nargin>2
+                initialPos = self.model.fkine(varargin{1});
+            else
+                initialPos = self.model.fkine(self.model.getpos);
+            end
             targetPos = self.model.fkine(targetJoints);
             t = 0.5;   
             deltaT = 0.01;   
@@ -274,11 +279,26 @@ classdef Fetch < handle
                     end
                 end
             end
-            [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment);
+            [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment, 0);
             if isCollision
                 result = true;
                 return
             end
+        end
+        
+        function qMatrix = retreat(self)
+            qMatrix1 = self.ArmRMRCPos(self.model.fkine(self.model.getpos) * transl(0, -0.1, 0));
+            currentPos = qMatrix1(size(qMatrix1, 1), :);
+            qMatrix2 = self.ArmRMRCJoints(deg2rad([-60 65 0 30 161 30 rad2deg(currentPos(7))]), currentPos);
+            currentPos = qMatrix2(size(qMatrix2, 1), :);
+            qMatrix3 = self.ArmRMRCJoints(deg2rad([92 65 0 30 161 30 rad2deg(currentPos(7))]), currentPos);
+            currentPos = qMatrix3(size(qMatrix3, 1), :);
+            qMatrix4 = self.ArmRMRCJoints(deg2rad([92 30 0 -100 0 80 0]), currentPos);
+            currentPos = qMatrix4(size(qMatrix4, 1), :);
+            qMatrix5 = self.ArmRMRCJoints(deg2rad([92 -50 0 -115 0 15 0]), currentPos);
+            currentPos = qMatrix5(size(qMatrix5, 1), :);
+            qMatrix6 = self.ArmRMRCJoints(deg2rad([92 -80 0 -100 0 85 0]), currentPos);
+            qMatrix = [qMatrix1; qMatrix2; qMatrix3; qMatrix4; qMatrix5; qMatrix6];
         end
         
         function AttachObject(self, object)
@@ -298,7 +318,7 @@ classdef Fetch < handle
         end
     end
 end
-
+        
 function result = IsIntersectionPointInsideTriangle(intersectP,triangleVerts)
 
 u = triangleVerts(2,:) - triangleVerts(1,:);

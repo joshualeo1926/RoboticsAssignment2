@@ -2,23 +2,24 @@
 % This is based upon Lab 5 exercises
 % Given a robot model (robot), and trajectory (i.e. joint state vector) (qMatrix)
 % and triangle obstacles in the environment (faces,vertex,faceNormals)
-function [result, intersectP, i] = IsCollision(robot,qMatrix,faces,vertex,faceNormals,returnOnceFound)
+function [result, intersectP, i] = IsCollision(robot,qMatrix,faces,vertex,faceNormals, returnOnceFound, checkType)
 if nargin < 6
     returnOnceFound = true;
+    checkType = 0;
 end
-result = false;
 
-for qIndex = 1:size(qMatrix,1)
-%     q = qMatrix(qIndex,:);
-    
+checkType = false;
+
+result = false;
+for qIndex = 1:size(qMatrix,1)    
     % Get the transform of every joint (i.e. start and end of every link)  
     tr = GetLinkPoses(qMatrix(qIndex,:), robot);
 
     % Go through each link and also each triangle face
     for i = 1 : size(tr,3)-1    
         for faceIndex = 1:size(faces,1) 
-            if tr(1,4,i) ~= tr(1,4,i+1) && tr(2,4,i) ~= tr(2,4,i+1) && tr(3,4,i) ~= tr(3,4,i+1) && 0
-                for j = 1:8
+            if tr(1,4,i) ~= tr(1,4,i+1) && tr(2,4,i) ~= tr(2,4,i+1) && tr(3,4,i) ~= tr(3,4,i+1) && checkType
+                for j = 1:4%8
                     ctr = tr(:,:,i);
                     ftr = tr(:,:,i+1);
                     p = [rand(1);  rand(1); rand(1)];
@@ -29,10 +30,10 @@ for qIndex = 1:size(qMatrix,1)
                     r = r/norm(r);
                     s = s/norm(s);
 
-                    x = [-1 -1 0 1 1 1 0 -1];
-                    y = [0 1 1 1 0 -1 -1 -1];
+                    x = [-1 0 0 1];%x = [-1 -1 0 1 1 1 0 -1];
+                    y = [0 1 -1 0];%y = [0 1 1 1 0 -1 -1 -1];
 
-                    radius = 0.08; %0.07
+                    radius = 0.07; %0.07
 
                     s = radius*x(j)*s;
                     r = radius*y(j)*r;
@@ -43,8 +44,6 @@ for qIndex = 1:size(qMatrix,1)
                     vertOnPlane = vertex(faces(faceIndex,1)',:);
                     [intersectP,check] = LinePlaneIntersection(faceNormals(faceIndex,:),vertOnPlane,nctr(1:3,4)',nftr(1:3,4)'); 
                     if check == 1 && IsIntersectionPointInsideTriangle(intersectP,vertex(faces(faceIndex,:)',:))
-                        %plot3(intersectP(1),intersectP(2),intersectP(3),'g*');
-                        %display('Intersection');
                         result = true;
                         if returnOnceFound
                             return
@@ -55,8 +54,6 @@ for qIndex = 1:size(qMatrix,1)
                 vertOnPlane = vertex(faces(faceIndex,1)',:);
                 [intersectP,check] = LinePlaneIntersection(faceNormals(faceIndex,:),vertOnPlane,tr(1:3,4,i)',tr(1:3,4, i+1)'); 
                 if check == 1 && IsIntersectionPointInsideTriangle(intersectP,vertex(faces(faceIndex,:)',:))
-                    %plot3(intersectP(1),intersectP(2),intersectP(3),'g*');
-                    %display('Intersection');
                     result = true;
                     if returnOnceFound
                         return
