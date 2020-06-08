@@ -130,12 +130,8 @@ classdef Fetch < handle
                         end
                     end  
                 end
-            else
-                isCollision = 0;
-                intersectP = [0 0 0];
-                i = 1;
-                j = 1;
             end
+            else
         end
         
         function qMatrix = ArmRMRCPos(self, targetPos, varargin)
@@ -277,24 +273,20 @@ classdef Fetch < handle
         end
         
         function result = CheckBaseCollision(self, environment) 
-            if self.collision
-                result = false;
-                for i = 1:numel(environment)
-                    for j = 1:numel(environment(i).mesh.Vertices(:, 1))
-                        if sqrt((environment(i).mesh.Vertices(j, 1) - self.model.base(1, 4))^2 + (environment(i).mesh.Vertices(j, 2) - self.model.base(2, 4))^2) <= self.collisionRadius ...
-                                && environment(i).mesh.Vertices(j, 3) >= self.model.base(3, 4) - 0.5 && environment(i).mesh.Vertices(j, 3) <= self.model.base(3, 4) + 0.43
-                            result = true;
-                            return
-                        end
+            result = false;
+            for i = 1:numel(environment)
+                for j = 1:numel(environment(i).mesh.Vertices(:, 1))
+                    if sqrt((environment(i).mesh.Vertices(j, 1) - self.model.base(1, 4))^2 + (environment(i).mesh.Vertices(j, 2) - self.model.base(2, 4))^2) <= self.collisionRadius ...
+                            && environment(i).mesh.Vertices(j, 3) >= self.model.base(3, 4) - 0.5 && environment(i).mesh.Vertices(j, 3) <= self.model.base(3, 4) + 0.43
+                        result = true;
+                        return
                     end
                 end
-                [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment, 0);
-                if isCollision
-                    result = true;
-                    return
-                end
-            else
-                result = false;
+            end
+            [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment, 0);
+            if isCollision
+                result = true;
+                return
             end
         end
         

@@ -36,6 +36,8 @@ lighting gouraud
 lightangle(gca,-60,20)
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
+Camera = false;
+
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
 workBenchPos = transl(0, 1, 0.75);
@@ -95,14 +97,16 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 gui = GUI();
 pause(0.000001)
 num = webcamlist;
- TH = isempty(num);
- 
- if(TH == 0)
-     cam = webcam;
- end
+if ~Camera
+    TH = isempty(num);
+    if(TH == 0)
+        cam = webcam;
+    end
+end
 
 %%
 % Mail loop
+robot.collision = false;
 step = 1;
 retreatStep = 1;
 getMatrix = 1;
@@ -149,6 +153,7 @@ while 1
         end
         % If Start is pressed start process
         if(startValue == 1)
+             if ~ 
              if(TH == 0)
                  Image = snapshot(cam);
                  targetIdentified = CameraScanner(Image);
@@ -722,7 +727,7 @@ while 1
                 % done
                 elseif step == 25
                     disp('DONE!')
-                    return
+                    break
                 end
                 
             % Retreat    
@@ -730,9 +735,9 @@ while 1
                 if retreatStep == 1
                     stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
                     if getRetreatMatrix == 1
-                        a = robot.model.fkine(robot.model.getpos)
-                        b = robot.model.fkine(robot.model.getpos) * transl(0, -0.1, 0)
-                        qMatrix = robot.ArmRMRCPos(robot.model.fkine(robot.model.getpos) * transl(0, -0.1, 0));
+                        oriPos = robot.model.fkine(robot.model.getpos);
+                        oriPos(2, 4) = oriPos(2, 4) - 0.1;
+                        qMatrix = robot.ArmRMRCPos(oriPos);
                         [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 

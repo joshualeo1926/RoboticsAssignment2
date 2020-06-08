@@ -36,6 +36,8 @@ lighting gouraud
 lightangle(gca,-60,20)
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
+Camera = false;
+
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
 workBenchPos = transl(0, 1, 0.75);
@@ -95,14 +97,16 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 gui = GUI();
 pause(0.000001)
 num = webcamlist;
- TH = isempty(num);
- 
- if(TH == 0)
-     cam = webcam;
- end
+if Camera
+    TH = isempty(num);
+    if(TH == 0)
+        cam = webcam;
+    end
+end
 
 %%
 % Mail loop
+robot.collision = false;
 step = 1;
 retreatStep = 1;
 getMatrix = 1;
@@ -149,12 +153,14 @@ while 1
         end
         % If Start is pressed start process
         if(startValue == 1)
-             if(TH == 0)
-                 Image = snapshot(cam);
-                 targetIdentified = CameraScanner(Image);
-                  if CameraScanner(Image)
-                      retreat = true;
-                  end
+             if Camera
+                 if(TH == 0)
+                     Image = snapshot(cam);
+                     targetIdentified = CameraScanner(Image);
+                      if CameraScanner(Image)
+                          retreat = true;
+                      end
+                 end
              end
             
             
