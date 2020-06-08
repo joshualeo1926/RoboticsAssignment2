@@ -94,12 +94,12 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 % Initialise GUI
 gui = GUI();
 pause(0.000001)
-% num = webcamlist;
-% TH = isempty(num);
-% 
-% if(TH == 0)
-%     cam = webcam;
-% end
+num = webcamlist;
+TH = isempty(num);
+
+if(TH == 0)
+    cam = webcam;
+end
 
 %%
 % Mail loop
@@ -149,12 +149,13 @@ while 1
         end
         % If Start is pressed start process
         if(startValue == 1)
-%             if(TH == 0)
-%                 Image = snapshot(cam);
-%                 targetIdentified = CameraScanner(Image);
-                  %if CameraScanner(Image)
-                  %    retreat = true;
-%             end
+            if(TH == 0)
+                Image = snapshot(cam);
+                targetIdentified = CameraScanner(Image);
+                  if CameraScanner(Image)
+                     retreat = true;
+                  end
+            end
             
             
             obstructionValue = -1.4 + 2.8 * blockValue/100;
@@ -721,7 +722,7 @@ while 1
                 % done
                 elseif step == 25
                     disp('DONE!')
-                    return
+                    break
                 end
                 
             % Retreat    
