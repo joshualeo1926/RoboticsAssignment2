@@ -92,12 +92,12 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 % Initialise GUI
 gui = GUI();
 
-% num = webcamlist;
-% TH = isempty(num);
-% 
-% if(TH == 0)
-%     cam = webcam;
-% end
+num = webcamlist;
+TH = isempty(num);
+
+if(TH == 0)
+    cam = webcam;
+end
 
 %%
 % Mail loop
@@ -175,10 +175,10 @@ while 1
                 %end
             %end
             
-%             if(TH == 0)
-%                 Image = snapshot(cam);
-%                 targetIdentified = CameraScanner(Image);
-%             end
+            if(TH == 0)
+                Image = snapshot(cam);
+                targetIdentified = CameraScanner(Image);
+            end
             
             % Move Gantry Crane
             pause(0.00001)
