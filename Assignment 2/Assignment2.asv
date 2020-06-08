@@ -722,7 +722,7 @@ while 1
                 % done
                 elseif step == 25
                     disp('DONE!')
-                    break
+                    return
                 end
                 
             % Retreat    
@@ -730,9 +730,9 @@ while 1
                 if retreatStep == 1
                     stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
                     if getRetreatMatrix == 1
-                        oriPos = robot.model.fkine(robot.model.getpos);
-                        oriPos(2, 4) = oriPos(2, 4) - 0.1;
-                        qMatrix = robot.ArmRMRCPos(oriPos);
+                        a = robot.model.fkine(robot.model.getpos)
+                        b = robot.model.fkine(robot.model.getpos) * transl(0, -0.1, 0)
+                        qMatrix = robot.ArmRMRCPos(robot.model.fkine(robot.model.getpos) * transl(0, -0.1, 0));
                         [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
