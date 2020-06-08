@@ -42,10 +42,11 @@ workBenchPos = transl(0, 1, 0.75);
 wrench1Pos = transl(-0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench3Pos = transl(0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-gantryPos = transl(0, 0.75, 0.05); % y was -0.25
-gantryMotorPos = transl(-1.4, 0.75, 1.42); % y was -0.25
+gantryPos = transl(0, 0.75, 0.1); % y was -0.25
+gantryMotorPos = transl(-1.4, 0.75, 1.47); % y was -0.25
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
-cubePos = transl(1.8, -3, 0);
+cubePos = transl(0, -3, 0);
+stopCubePos = transl(2.25, 4.25, 3.5);
 fencePos = transl(0,0,0);
 
 % Get path to each PLY file
@@ -69,6 +70,7 @@ wrench3 = CreateObject(wrench3Path, wrench3Pos);
 gantry = CreateObject(gantryPath, gantryPos);
 gantryMotor = CreateObject(gantryMotorPath, gantryMotorPos);
 cube = CreateObject(cubePath,cubePos);
+stopCube = CreateObject(cubePath, stopCubePos, [0, 0, 0], 0.25);
 
 % Create fences
 CreateWorkspace(fencePath, fencePos)
@@ -91,30 +93,45 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 
 % Initialise GUI
 gui = GUI();
-
-num = webcamlist;
-TH = isempty(num);
-
-if(TH == 0)
-    cam = webcam;
-end
+pause(0.000001)
+% num = webcamlist;
+% TH = isempty(num);
+% 
+% if(TH == 0)
+%     cam = webcam;
+% end
 
 %%
 % Mail loop
 step = 1;
-get_matrix = 1;
+retreatStep = 1;
+getMatrix = 1;
 itteration = 1;
+getRetreatMatrix = 1;
+retreatItteration = 1;
 insideWorkspace = false;
 view(-40, 30)
+retreat = false;
 while 1
-    %read GUI
-    % Checks If Power Switch is turned on
-    pause(0.00001)
+    pause(0.000001)
+    eStopValue = gui.GetEStopValue();
+    pause(0.000001)
     powerState = gui.GetPowerValue();
-    while(powerState == "On")
-        pause(0.00001)
+    pause(0.000001)
+    teachMode = gui.GetTeachModeValue();
+    pause(0.000001)
+    startValue = gui.GetStartValue();
+    pause(0.000001)
+    blockValue = gui.GetBlockSlider();
+    pause(0.000001)
+    lightCurtainBlock = gui.GetLightBlockSlider();
+    pause(0.000001)
+    resetButtonVal = gui.GetResetValue();
+    pause(0.000001)
+    % read GUI
+    % Checks If Power Switch is turned on
+    if(powerState == "On")
         % Checks if Teach Mode Button is selected
-        teachMode = gui.GetTeachModeValue();
         % ------TEACH MODE-------
         if(teachMode == 1)
             clc
@@ -126,95 +143,46 @@ while 1
             q = deg2rad([92 -80 0 -100 0 85 0]);
             figure(1);
             robot.model.plot(q, 'workspace', workspace, 'noarrow', 'scale', 0);
-            while(teachMode == 1)
-                pause(0.00001)
-                teachMode = gui.GetTeachModeValue();
-                joint1 = gui.GetJoint1Value();
-                joint2 = gui.GetJoint2Value();
-                joint3 = gui.GetJoint3Value();
-                joint4 = gui.GetJoint4Value();
-                joint5 = gui.GetJoint5Value();
-                joint6 = gui.GetJoint6Value();
-                joint7 = gui.GetJoint7Value();
-                qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
-                figure(1);
-                robot.model.plot(qMatrix);
-                pause(0.00001)
-                % Checks if the 2nd mode of Teach Mode is selected
-                teachMode2 = gui.GetTeachMode2Value();
-                if(teachMode2 == 1)
-                    pause(0.00001)
-                    joint1 = gui.GetJoint1Value();
-                    joint2 = gui.GetJoint2Value();
-                    joint3 = gui.GetJoint3Value();
-                    joint4 = gui.GetJoint4Value();
-                    joint5 = gui.GetJoint5Value();
-                    joint6 = gui.GetJoint6Value();
-                    joint7 = gui.GetJoint7Value();
-                    qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
-                    figure(1);
-                    robot.model.plot(qMatrix);
-                end
+            while(gui.GetTeachModeValue())
+                TeachMode(robot, gui)
             end
         end
         % If Start is pressed start process
-        pause(0.00001)
-        startValue = gui.GetStartValue();
         if(startValue == 1)
-            %paused = 1;
-            %check ESTOP
-            %pause(0.00001)
-            %EStopValue = gui.GetEStopValue();
-            %if(EStopValue == 1)
-                %while(paused == 1)
-                    %pause(0.00001)
-                    %EStopValue = gui.GetEStopValue();
-                    %if(EStopValue == 0)
-                    %paused = 0;
-                    %end
-                %end
-            %end
+%             if(TH == 0)
+%                 Image = snapshot(cam);
+%                 targetIdentified = CameraScanner(Image);
+                  %if CameraScanner(Image)
+                  %    retreat = true;
+%             end
             
-            if(TH == 0)
-                Image = snapshot(cam);
-                targetIdentified = CameraScanner(Image);
-            end
             
-            % Move Gantry Crane
-            pause(0.00001)
-            obstructionValue = -1.4 + 2.8 * gui.GetBlockSlider()/100;
-            if obstructionValue < -1.4
-                obstructionValue = -1.4;
-            elseif obstructionValue > 1.35
-                obstructionValue = 1.35;
-            end
+            obstructionValue = -1.4 + 2.8 * blockValue/100;
             gantryMotor.mesh.Vertices(:, 1) = gantryMotor.verts(:, 1) + 1.4 + obstructionValue;
             
             % Move the cube for Light Curtain
-            pause(0.00001)
-            cubeValue = 1.5 * gui.GetLightBlockSlider()/100;
+            cubeValue = 1.5 * lightCurtainBlock/100;
             cube.mesh.Vertices(:, 2) = cube.verts(:, 2) + cubeValue;
-            
-            pause(0.00001)
-            resetButtonVal = gui.GetResetValue();
             if (resetButtonVal == 1)
                 insideWorkspace = false;
+                retreat = false;
+                disp('Reset triggered, workspace is clear, continuing operation')
             end
-            
             if CheckLightCurtain(lines, cube)
                 insideWorkspace = true;
+                retreat = true;
+                disp('Entry into the workspace detected, stopping operation until reset from outside of the workspace')
             end
-            % ========== FETCH CONTROLL ============
-            % move to workbench
-            pause(0.00001);
+             
             % Checks if the EStop Button is pushed
-            eStopValue = gui.GetEStopValue();
-            if ~insideWorkspace && eStopValue == 0
+            % ========== FETCH CONTROLL ============
+            if ~retreat && ~insideWorkspace && eStopValue == 0
+                % move to workbench
                 if step == 1
-                    if get_matrix == 1
+                    if getMatrix == 1
                         destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.95, fetchBase(3, 4))*trotz(pi/2);
                         basePos = robot.MoveBase(destination);
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(basePos, 3)
                         collision = robot.CheckBaseCollision(gantryMotor);
@@ -226,91 +194,84 @@ while 1
                         end
                     elseif itteration > size(basePos, 3)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
 
                 % unfold arm
                 elseif step == 2
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.MoveJointState(deg2rad([92 -50 0 -115 0 15 0]));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
 
                 elseif step == 3
-                    if get_matrix == 1
-                        %qMatrix = robot.ArmRMRCJoints(deg2rad([92 30 0 -100 0 80 0]));
+                    if getMatrix == 1
                         qMatrix = robot.MoveJointState(deg2rad([92 30 0 -100 0 80 0]));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
 
                 % move to above table
                 elseif step == 4
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.Move(transl(0, 0.5, 0.75)*trotx(pi));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end                
 
                 % move closer
                 elseif step == 5
-                    if get_matrix == 1
+                    if getMatrix == 1
                         destination = transl(workBenchPos(1, 4), workBenchPos(2, 4) - 0.75, fetchBase(3, 4))*trotz(pi/2);
                         basePos = robot.MoveBase(destination);
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end 
                     if itteration <= size(basePos, 3)
                         collision = robot.CheckBaseCollision(gantryMotor);
@@ -323,481 +284,599 @@ while 1
                         end
                     elseif itteration > size(basePos, 3)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
                     
                 % ======WRENCH 1======
                 % pick up first wrench
                 elseif step == 6
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(wrench1Pos*trotx(pi)*trotz(pi));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
-                    
+                
+                % match wrench 1 orientation
                 elseif step == 7
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)-pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
-                    
+                
+                % spin wrench 1    
                 elseif step == 8
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
-                        get_matrix = 0;
+                        getMatrix = 0;
                         robot.AttachObject(wrench1);
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            robot.UpdateObjectPos;
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        robot.UpdateObjectPos;
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
 
+                % pre placment wrench 1
                 elseif step == 9
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.Move(transl(workBenchPos(1, 4)-0.3275,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
 
                 % place wrench 1
                 elseif step == 10
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3255,... %-0.3275
                             workBenchPos(2, 4) + 0.055, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
- 
+        
+                % go back
                 elseif step == 11
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4)-0.3275,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
                         robot.DetachObject()
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
-
+                    
                 % ======WRENCH 2======
-                % pick up second wrench
+                % GO TO WRENCH 2
                 elseif step == 12
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.Move(wrench2Pos*trotx(pi)*trotz(pi));
-                        get_matrix = 0;
+                        getMatrix = 0;
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
                     
+                % match wrench 2 orientation
                 elseif step == 13
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)-pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
-                    
+                   
+                % spin wrench 2
                 elseif step == 14
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
                         robot.AttachObject(wrench2);
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            robot.UpdateObjectPos;
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        robot.UpdateObjectPos;
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
                     
+                 % pre place wrench 2
                  elseif step == 15
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.Move(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end 
                     
                 % place wrench 2
                 elseif step == 16
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) + 0.03, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end      
 
+                % go back
                 elseif step == 17
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4),...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0625)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
                         robot.DetachObject()
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
 
                 % ======WRENCH 3======
                 % pick up third wrench
                 elseif step == 18
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.Move(wrench3Pos*trotx(pi)*trotz(pi));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
                     
+                % macth wrench 3 orientation
                 elseif step == 19
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
-                    
+                  
+                % spin wrench 3
                 elseif step == 20
-                    if get_matrix == 1
+                    if getMatrix == 1
                         currentPos = robot.model.getpos;
                         qMatrix = robot.MoveJointState([currentPos(1:6) currentPos(7)+pi]);
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
-                        if isCollision
-                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
-                        end
                         robot.AttachObject(wrench3);
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
-                        if ~isCollision
-                            figure(1);
-                            robot.model.plot(qMatrix(itteration, :));
-                            robot.UpdateObjectPos;
-                            itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
-                        end
+                        figure(1);
+                        robot.model.plot(qMatrix(itteration, :));
+                        robot.UpdateObjectPos;
+                        itteration = itteration + 1;
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end  
                     
+                 % pre palace wrench 3
                  elseif step == 21
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end 
                 
                  % Hang Wrench 3
                  elseif step == 22
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) + 0.045, workBenchPos(3, 4) + 0.0365)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             robot.UpdateObjectPos;
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end
                     
+                % go back
                 elseif step == 23
-                    if get_matrix == 1
+                    if getMatrix == 1
                         qMatrix = robot.ArmRMRCPos(transl(workBenchPos(1, 4) + 0.305,...
                             workBenchPos(2, 4) - 0.1, workBenchPos(3, 4) + 0.0385)*trotx(-pi/2));
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
                         if isCollision
                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
                         end
                         robot.DetachObject();
-                        get_matrix = 0;
+                        getMatrix = 0;
                     end
                     if itteration <= size(qMatrix, 1)
-                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor);
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
                         if ~isCollision
                             figure(1);
                             robot.model.plot(qMatrix(itteration, :));
                             itteration = itteration + 1;
-                        else
-                            disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' waiting for path to be clear'])
                         end
                     elseif itteration > size(qMatrix, 1)
                         itteration = 1;
-                        get_matrix = 1;
+                        getMatrix = 1;
                         step = step + 1;
                     end 
                     
-                % done
+                % look at sign
                 elseif step == 24
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([-60 30 -105 30 161 30 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        step = step + 1;
+                    end 
+
+                % done
+                elseif step == 25
                     disp('DONE!')
                     return
+                end
+                
+            % Retreat    
+            elseif retreat && ~insideWorkspace && eStopValue == 0
+                if retreatStep == 1
+                    stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
+                    if getRetreatMatrix == 1
+                        qMatrix = robot.ArmRMRCPos(robot.model.fkine(robot.model.getpos) * transl(0, -0.1, 0));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getRetreatMatrix = 0;
+                    end
+                    if retreatItteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(retreatItteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(retreatItteration, :));
+                            retreatItteration = retreatItteration + 1;
+                        end
+                    elseif retreatItteration > size(qMatrix, 1)
+                        retreatItteration = 1;
+                        getRetreatMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end
+                    
+                elseif retreatStep == 2
+                    retreat = false;
+                    stopCube = CreateObject(cubePath, stopCubePos, [0, 0, 0], 0.25);
+                    retreatStep = 1;
+                    getRetreatMatrix = 1;
+                    retreatItteration = 1;
+                %{    
+                elseif retreatStep == 2
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([-60 65 0 30 161 30 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end    
+                    
+                elseif retreatStep == 3
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([92 65 0 30 161 30 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end  
+                    
+                elseif retreatStep == 4
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([92 30 0 -100 0 80 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end 
+                    
+                elseif retreatStep == 5
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([92 -50 0 -115 0 15 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end
+                    
+                elseif retreatStep == 6
+                    if getMatrix == 1
+                        currentPos = robot.model.getpos;
+                        qMatrix = robot.ArmRMRCJoints(deg2rad([92 -80 0 -100 0 85 rad2deg(currentPos(7))]));
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix, environment, 0);
+                        if isCollision
+                           disp(['link: ', num2str(l), ' will collide with ', environment(j).name{1}, ' cannot complete this motion']) 
+                        end
+                        robot.DetachObject();
+                        getMatrix = 0;
+                    end
+                    if itteration <= size(qMatrix, 1)
+                        [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
+                        if ~isCollision
+                            figure(1);
+                            robot.model.plot(qMatrix(itteration, :));
+                            itteration = itteration + 1;
+                        end
+                    elseif itteration > size(qMatrix, 1)
+                        itteration = 1;
+                        getMatrix = 1;
+                        retreatStep = retreatStep + 1;
+                    end 
+                    %}
                 end
             end
         end
@@ -818,7 +897,8 @@ function result = CheckLightCurtain(lines, object)
     end
 end
 
-function obj = CreateObject(file, pos)
+function obj = CreateObject(file, pos, varargin)
+
     splitLine = split(file, '\');
     splitLine = splitLine(end);
     splitLine = split(splitLine, '.');
@@ -830,10 +910,18 @@ function obj = CreateObject(file, pos)
     midPoint = sum(v)/obj.vertexCount;
     obj.verts = v - repmat(midPoint, obj.vertexCount, 1);
     obj.oriVerts = v - repmat(midPoint, obj.vertexCount, 1);
-    obj.vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
-    obj.verts(:, 1) = obj.verts(:, 1) + pos(1, 4);
-    obj.verts(:, 2) = obj.verts(:, 2) + pos(2, 4);
-    obj.verts(:, 3) = obj.verts(:, 3) + pos(3, 4);
+    if nargin>2
+        obj.vertexColours = varargin{1};
+    else
+        obj.vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
+    end
+    sizeMod = 1;
+    if nargin>3
+        sizeMod = varargin{2};
+    end
+    obj.verts(:, 1) = (obj.verts(:, 1) + pos(1, 4))*sizeMod;
+    obj.verts(:, 2) = (obj.verts(:, 2) + pos(2, 4))*sizeMod;
+    obj.verts(:, 3) = (obj.verts(:, 3) + pos(3, 4))*sizeMod;
     hold on;
     obj.mesh = trisurf(f, obj.verts(:, 1), obj.verts(:, 2),...
         obj.verts(:, 3), 'FaceVertexCData', obj.vertexColours, 'EdgeLighting', 'flat', 'LineStyle', 'none');
@@ -857,7 +945,6 @@ function lines = CreateLightCurtain()
     LineEndY = -2.5;
     LineStartZ = 0;
     LineEndZ = 2;
-    %lines = nan((LineEndZ-LineStartZ)/lineGapZ, 1);
     for i = 1:(LineEndZ-LineStartZ)/lineGapZ
        zVal = lineGapZ * (i-1);
        line.X = [LineStartX, LineEndX];
@@ -991,4 +1078,33 @@ function CreateWorkspace(fencePath, fencePos)
     rotatef6 = makehgtform('zrotate', -pi/2);
     updatePoints = [fence6Pos * rotatef6 * [fence6.verts,ones(fence6.vertexCount,1)]']';
     fence6.mesh.Vertices = updatePoints(:,1:3);
+end
+
+function TeachMode(robot, gui)
+    joint1 = gui.GetJoint1Value();
+    joint2 = gui.GetJoint2Value();
+    joint3 = gui.GetJoint3Value();
+    joint4 = gui.GetJoint4Value();
+    joint5 = gui.GetJoint5Value();
+    joint6 = gui.GetJoint6Value();
+    joint7 = gui.GetJoint7Value();
+    qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
+    figure(1);
+    robot.model.plot(qMatrix);
+    pause(0.00001)
+    % Checks if the 2nd mode of Teach Mode is selected
+    teachMode2 = gui.GetTeachMode2Value();
+    if(teachMode2 == 1)
+        pause(0.00001)
+        joint1 = gui.GetJoint1Value();
+        joint2 = gui.GetJoint2Value();
+        joint3 = gui.GetJoint3Value();
+        joint4 = gui.GetJoint4Value();
+        joint5 = gui.GetJoint5Value();
+        joint6 = gui.GetJoint6Value();
+        joint7 = gui.GetJoint7Value();
+        qMatrix = [joint1 joint2 joint3 joint4 joint5 joint6 joint7];
+        figure(1);
+        robot.model.plot(qMatrix);
+    end
 end
