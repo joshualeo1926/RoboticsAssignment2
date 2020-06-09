@@ -184,7 +184,7 @@ classdef Fetch < handle
                 angular_velocity = [S(3,2);S(1,3);S(2,1)]; 
         
                 xdot = W*[linear_velocity;angular_velocity];                          	
-                J = self.model.jacob0(qMatrix(i,:));
+                J = self.model.jacob0(qMatrix(i,:))
                 m(i) = sqrt(det(J*J'));
                 if m(i) < epsilon 
                     lambda = (1 - m(i)/epsilon)*5E-2;
@@ -192,9 +192,9 @@ classdef Fetch < handle
                     lambda = 0;
                 end
                 
-                N = null(J);
-                invJ = pinv(J'*J + lambda *eye(7))*J';                     
-                qdot(i,:) = (invJ*xdot+N)';                                             
+                N = null(J)
+                invJ = J'.*inv(J'*J)^-1                        
+                qdot(i,:) = (invJ*xdot)';                                             
                 for j = 1:7
                     if j == 3 || j == 5 || j == 7
                         if qMatrix(i,j) >= 180
@@ -264,9 +264,8 @@ classdef Fetch < handle
                     lambda = 0;
                 end
                 
-                N = null(J);
-                invJ = pinv(J'*J + lambda *eye(7))*J';                     
-                qdot(i,:) = (invJ*xdot+N)';                                                 
+                invJ = inv(J'*J + lambda *eye(7))*J';                        
+                qdot(i,:) = (invJ*xdot)';                                             
                 for j = 1:7                                        
                     if qMatrix(i,j) + deltaT*qdot(i,j) < self.model.qlim(j,1)   
                         qdot(i,j) = 0;
