@@ -7,6 +7,7 @@ classdef Fetch < handle
         scale = 0;
         collisionRadius = 0.29;
         attachedObjects = [];
+        collision = true;
     end
 
     methods
@@ -107,27 +108,34 @@ classdef Fetch < handle
         end
         
         function [isCollision, intersectP, i, j] = IsArmCollision(self, qMatrix, environment, checkType)
-            for k = 1:size(qMatrix, 1)              
-                rCount = 0;
-                stopMotion = 0;
-                for j = 1:numel(environment)
-                    [result, intersectP, i] = IsCollision(self.model, qMatrix(k, :), environment(j).f, ...
-                        environment(j).mesh.Vertices, environment(j).fn, true, checkType);
-                    if(result == 0)
-                        rCount = rCount + 1;
-                    elseif(result == 1)
-                        isCollision = 1;
-                        if i == 7 && strcmp(environment(j).name{1}, 'WorkBench2') || strcmp(environment(j).name{1}, 'WorkBench')
+            if self.collision
+                for k = 1:size(qMatrix, 1)              
+                    rCount = 0;
+                    stopMotion = 0;
+                    for j = 1:numel(environment)
+                        [result, intersectP, i] = IsCollision(self.model, qMatrix(k, :), environment(j).f, ...
+                            environment(j).mesh.Vertices, environment(j).fn, true, checkType);
+                        if(result == 0)
+                            rCount = rCount + 1;
+                        elseif(result == 1)
+                            isCollision = 1;
+                            if i == 7 && strcmp(environment(j).name{1}, 'WorkBench2') || strcmp(environment(j).name{1}, 'WorkBench')
+                                isCollision = 0;
+                            end
+                            break
+                        end
+                        environmentSize = size(environment);
+                        if rCount == environmentSize(2) && stopMotion == 0
                             isCollision = 0;
                         end
-                        break
-                    end
-                    environmentSize = size(environment);
-                    if rCount == environmentSize(2) && stopMotion == 0
-                        isCollision = 0;
-                    end
-                end  
-            end 
+                    end  
+                end
+            else
+                isCollision = 0;
+                intersectP = [0 0 0];
+                i = 1;
+                j = 1;
+            end
         end
         
         function qMatrix = ArmRMRCPos(self, targetPos, varargin)
@@ -269,20 +277,24 @@ classdef Fetch < handle
         end
         
         function result = CheckBaseCollision(self, environment) 
-            result = false;
-            for i = 1:numel(environment)
-                for j = 1:numel(environment(i).mesh.Vertices(:, 1))
-                    if sqrt((environment(i).mesh.Vertices(j, 1) - self.model.base(1, 4))^2 + (environment(i).mesh.Vertices(j, 2) - self.model.base(2, 4))^2) <= self.collisionRadius ...
-                            && environment(i).mesh.Vertices(j, 3) >= self.model.base(3, 4) - 0.5 && environment(i).mesh.Vertices(j, 3) <= self.model.base(3, 4) + 0.43
-                        result = true;
-                        return
+            if self.collision
+                result = false;
+                for i = 1:numel(environment)
+                    for j = 1:numel(environment(i).mesh.Vertices(:, 1))
+                        if sqrt((environment(i).mesh.Vertices(j, 1) - self.model.base(1, 4))^2 + (environment(i).mesh.Vertices(j, 2) - self.model.base(2, 4))^2) <= self.collisionRadius ...
+                                && environment(i).mesh.Vertices(j, 3) >= self.model.base(3, 4) - 0.5 && environment(i).mesh.Vertices(j, 3) <= self.model.base(3, 4) + 0.43
+                            result = true;
+                            return
+                        end
                     end
                 end
-            end
-            [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment, 0);
-            if isCollision
-                result = true;
-                return
+                [isCollision, intersectP, i, j] = self.IsArmCollision(self.model.getpos, environment, 0);
+                if isCollision
+                    result = true;
+                    return
+                end
+            else
+                result = false;
             end
         end
         

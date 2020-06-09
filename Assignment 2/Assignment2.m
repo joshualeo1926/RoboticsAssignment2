@@ -36,6 +36,9 @@ lighting gouraud
 lightangle(gca,-60,20)
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
+camera = true;
+cameraAtEnd = true;
+
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
 workBenchPos = transl(0, 1, 0.75);
@@ -94,15 +97,21 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 % Initialise GUI
 gui = GUI();
 pause(0.000001)
-num = webcamlist;
- TH = isempty(num);
- 
- if(TH == 0)
-     cam = webcam;
- end
+takeSnapshots = false;
+
+if camera && ~cameraAtEnd
+    num = webcamlist;
+    takeSnapshots = true;
+    TH = isempty(num);
+    if(TH == 0)
+        cam = webcam;
+    end
+end
 
 %%
 % Mail loop
+view(-40, 30)
+robot.collision = true;
 step = 1;
 retreatStep = 1;
 getMatrix = 1;
@@ -110,7 +119,6 @@ itteration = 1;
 getRetreatMatrix = 1;
 retreatItteration = 1;
 insideWorkspace = false;
-view(-40, 30)
 retreat = false;
 while 1
     pause(0.000001)
@@ -149,12 +157,15 @@ while 1
         end
         % If Start is pressed start process
         if(startValue == 1)
-             if(TH == 0)
-                 Image = snapshot(cam);
-                 targetIdentified = CameraScanner(Image);
-                  if CameraScanner(Image)
-                      retreat = true;
-                  end
+             if camera && takeSnapshots
+                 if(TH == 0)
+                     Image = snapshot(cam);
+                     targetIdentified = CameraScanner(Image);
+                      if CameraScanner(Image)
+                          retreat = true;
+                          %stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
+                      end
+                 end
              end
             
             
@@ -166,12 +177,10 @@ while 1
             cube.mesh.Vertices(:, 2) = cube.verts(:, 2) + cubeValue;
             if (resetButtonVal == 1)
                 insideWorkspace = false;
-                retreat = false;
                 disp('Reset triggered, workspace is clear, continuing operation')
             end
             if CheckLightCurtain(lines, cube)
                 insideWorkspace = true;
-                retreat = true;
                 disp('Entry into the workspace detected, stopping operation until reset from outside of the workspace')
             end
              
@@ -705,6 +714,14 @@ while 1
                         end
                         robot.DetachObject();
                         getMatrix = 0;
+                        if camera && cameraAtEnd
+                            num = webcamlist;
+                            takeSnapshots = true;
+                            TH = isempty(num);
+                            if(TH == 0)
+                                cam = webcam;
+                            end
+                        end
                     end
                     if itteration <= size(qMatrix, 1)
                         [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
@@ -722,13 +739,12 @@ while 1
                 % done
                 elseif step == 25
                     disp('DONE!')
-                    break
+                    step = step + 1; 
                 end
                 
             % Retreat    
             elseif retreat && ~insideWorkspace && eStopValue == 0
                 if retreatStep == 1
-                    stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
                     if getRetreatMatrix == 1
                         oriPos = robot.model.fkine(robot.model.getpos);
                         oriPos(2, 4) = oriPos(2, 4) - 0.1;
@@ -754,8 +770,8 @@ while 1
                     end
                     
                 elseif retreatStep == 2
+                    %stopCube = CreateObject(cubePath, stopCubePos, [0, 0, 0], 0.25);
                     retreat = false;
-                    stopCube = CreateObject(cubePath, stopCubePos, [0, 0, 0], 0.25);
                     retreatStep = 1;
                     getRetreatMatrix = 1;
                     retreatItteration = 1;
