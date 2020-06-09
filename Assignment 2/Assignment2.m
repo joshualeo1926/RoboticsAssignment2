@@ -26,6 +26,9 @@
         IsIntersectionPointInsideTriangle   |41013 robotics/Dr.Gavin Paul
         GetLinkPoses                        |41013 robotics/Dr.Gavin Paul 
         Move/RMRC LAB9 - tutorial           |41013 robotics/Dr.Gavin Paul
+        CameraScanner                       |Johnson Nguyen also used in Sensors and Control assignment
+        
+        
 %}
 
 clear all;
