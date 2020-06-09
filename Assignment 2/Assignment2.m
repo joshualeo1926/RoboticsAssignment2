@@ -45,8 +45,8 @@ workBenchPos = transl(0, 1, 0.75);
 wrench1Pos = transl(-0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench2Pos = transl(0, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
 wrench3Pos = transl(0.2, 0.75, workBenchPos(3, 4) - 0.2) * trotz(pi);
-gantryPos = transl(0, 0.75, 0.1); % y was -0.25
-gantryMotorPos = transl(-1.4, 0.75, 1.47); % y was -0.25
+gantryPos = transl(0, 0.75, 0.07); % y was -0.25 z was 0.1
+gantryMotorPos = transl(-1.4, 0.75, 1.42); % y was -0.25 z was 1.47
 fetchBase = transl(0, -2, 0.5)*trotz(pi/2);
 cubePos = transl(0, -3, 0);
 stopCubePos = transl(2.25, 4.25, 3.5);
@@ -163,7 +163,6 @@ while 1
                      targetIdentified = CameraScanner(Image);
                       if CameraScanner(Image)
                           retreat = true;
-                          %stopCube = CreateObject(cubePath, stopCubePos, [1, 0, 0], 0.25);
                       end
                  end
              end
@@ -770,7 +769,6 @@ while 1
                     end
                     
                 elseif retreatStep == 2
-                    %stopCube = CreateObject(cubePath, stopCubePos, [0, 0, 0], 0.25);
                     retreat = false;
                     retreatStep = 1;
                     getRetreatMatrix = 1;
