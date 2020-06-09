@@ -4,10 +4,17 @@ clc;
 close all;
 
 %%
-cam = webcam;
+%cam = webcam;
+vid = videoinput('winvideo', 1, 'MJPG_1280x720'); %(creating vid inputobj(adaptorname, deviceID,vidformat))
 while(1)
-    Image = snapshot(cam);
-    targetIdentified = CameraScanner(Image);
+    
+    vid.TriggerRepeat = inf;
+    vid.FrameGrabInterval = 2
+    vid_src = getselectedsource(vid);
+    vid_src.Tag = 'motion detection setup';
+    figure
+    start(vid)
+    preview(vid)
 end
 %%
 % currentFile = mfilename( 'fullpath' );

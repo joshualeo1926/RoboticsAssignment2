@@ -36,7 +36,8 @@ lighting gouraud
 lightangle(gca,-60,20)
 set(0, 'DefaultFigureWindowStyle', 'docked')
 
-Camera = true;
+camera = true;
+cameraAtEnd = true;
 
 % Set all locations
 workspace = [-2 2 -2.5 1.5 -0.1 3.5];
@@ -96,8 +97,11 @@ robot.model.plot(initialQMatrix, 'workspace', workspace, 'noarrow', 'scale', 0)
 % Initialise GUI
 gui = GUI();
 pause(0.000001)
-num = webcamlist;
-if Camera
+takeSnapshots = false;
+
+if camera && ~cameraAtEnd
+    num = webcamlist;
+    takeSnapshots = true;
     TH = isempty(num);
     if(TH == 0)
         cam = webcam;
@@ -106,6 +110,7 @@ end
 
 %%
 % Mail loop
+view(-40, 30)
 robot.collision = true;
 step = 1;
 retreatStep = 1;
@@ -114,7 +119,6 @@ itteration = 1;
 getRetreatMatrix = 1;
 retreatItteration = 1;
 insideWorkspace = false;
-view(-40, 30)
 retreat = false;
 while 1
     pause(0.000001)
@@ -153,7 +157,7 @@ while 1
         end
         % If Start is pressed start process
         if(startValue == 1)
-             if Camera
+             if camera && takeSnapshots
                  if(TH == 0)
                      Image = snapshot(cam);
                      targetIdentified = CameraScanner(Image);
@@ -710,6 +714,14 @@ while 1
                         end
                         robot.DetachObject();
                         getMatrix = 0;
+                        if camera && cameraAtEnd
+                            num = webcamlist;
+                            takeSnapshots = true;
+                            TH = isempty(num);
+                            if(TH == 0)
+                                cam = webcam;
+                            end
+                        end
                     end
                     if itteration <= size(qMatrix, 1)
                         [isCollision, intersectP, l, j] = robot.IsArmCollision(qMatrix(itteration, :), gantryMotor, 1);
@@ -727,7 +739,7 @@ while 1
                 % done
                 elseif step == 25
                     disp('DONE!')
-                    step = step + 1 
+                    step = step + 1; 
                 end
                 
             % Retreat    
