@@ -118,7 +118,7 @@ getMatrix = 1;
 itteration = 1;
 getRetreatMatrix = 1;
 retreatItteration = 1;
-insideWorkspace = false;z
+insideWorkspace = false;
 retreat = false;
 while 1
     pause(0.000001)
